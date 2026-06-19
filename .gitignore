@@ -15,3 +15,11 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# IntelliJ IDEA
+.idea/
+
+# Local config (contains real credentials)
+application.yml
+application-dev.yml
+application-prod.yml
