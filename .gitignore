@@ -20,6 +20,5 @@ buildNumber.properties
 .idea/
 
 # Local config (contains real credentials)
-application.yml
 application-dev.yml
 application-prod.yml

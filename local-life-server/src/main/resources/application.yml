@@ -1,0 +1,4 @@
+# 仅设置激活的 profile，具体配置在 application-dev.yml 中
+spring:
+  profiles:
+    active: dev
