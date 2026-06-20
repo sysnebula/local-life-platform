@@ -1,0 +1,9 @@
+.page{padding-bottom:20px}
+.header{background:linear-gradient(135deg,#FF6B35,#F7931E);padding:12px 14px;color:#fff}
+.header-top{margin-bottom:8px}.city{font-size:15px;font-weight:500}
+.search-bar{display:flex;align-items:center;background:rgba(255,255,255,.25);border-radius:20px;padding:6px 12px}
+.search-bar input{flex:1;background:none;color:#fff;font-size:13px;height:28px}
+.cats{display:flex;padding:12px 8px;background:#fff;margin-bottom:6px}.cat{flex:1;text-align:center}.cat-icon{display:block;font-size:24px;margin-bottom:2px}.cat-name{font-size:11px;color:#333}
+.sec{background:#fff;margin:6px 0;padding:12px 14px}.sec-title{font-size:16px;font-weight:600;margin-bottom:10px}
+.seckill-scroll{white-space:nowrap}.seckill-card{display:inline-block;width:130px;border-radius:10px;padding:10px;color:#fff;margin-right:8px}.s-name{display:block;font-size:12px;opacity:.9}.s-price{display:block;font-size:20px;font-weight:700;margin:4px 0}.s-desc{font-size:10px;opacity:.8}
+.shop-card{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0}.shop-img{width:70px;height:70px;border-radius:8px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;flex-shrink:0}.shop-info{flex:1}.shop-name{font-size:14px;font-weight:600;display:block}.shop-addr{font-size:11px;color:#999;display:block;margin:2px 0}.shop-tags{display:flex;gap:4px}.tag{font-size:10px;background:#FFF3E0;color:#FF6B35;padding:1px 6px;border-radius:4px}

@@ -1,0 +1,39 @@
+<view class="page">
+  <view class="hero">
+    <text class="h-name">蜀九香火锅（三里屯店）</text>
+    <text class="h-meta">⭐4.8 · 月售3286 · 🕐10:00-22:00</text>
+    <text class="h-meta">📍 工体北路甲2号 · 距您1.2km</text>
+  </view>
+
+  <view class="tabs">
+    <text class="tab {{tab===0?'active':''}}" bindtap="switchTab" data-idx="0">团购券</text>
+    <text class="tab {{tab===1?'active':''}}" bindtap="switchTab" data-idx="1">外卖菜单</text>
+    <text class="tab {{tab===2?'active':''}}" bindtap="switchTab" data-idx="2">探店笔记</text>
+  </view>
+
+  <view wx:if="{{tab===0}}" class="sec">
+    <view class="v-card" wx:for="{{vouchers}}" wx:key="id" bindtap="buyVoucher" data-item="{{item}}">
+      <view class="v-price">¥{{item.payValue}}</view>
+      <view class="v-info"><text class="v-title">{{item.title}}</text><text class="v-desc">{{item.rule}}</text></view>
+      <button class="v-btn {{item.type===1?'seckill':''}}" size="mini">{{item.type===1?'⚡秒杀':'购买'}}</button>
+    </view>
+  </view>
+
+  <view wx:if="{{tab===1}}" class="sec">
+    <block wx:for="{{menu}}" wx:key="name">
+      <text class="cat-title">{{item.name}}</text>
+      <view class="dish-item" wx:for="{{item.dishes}}" wx:key="id" wx:for-item="d">
+        <view class="d-img"><text>{{d.icon}}</text></view>
+        <view class="d-info"><text class="d-name">{{d.name}}</text><text class="d-price">¥{{d.price}}</text></view>
+        <button class="add-btn" bindtap="addCart" data-item="{{d}}">+</button>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{tab===2}}" class="sec">
+    <view class="note" wx:for="{{notes}}" wx:key="id">
+      <view class="note-hd"><text class="note-user">{{item.userName}}</text><text class="note-time">{{item.time}}</text></view>
+      <text class="note-content">{{item.content}}</text>
+    </view>
+  </view>
+</view>

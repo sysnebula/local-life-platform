@@ -1,0 +1,54 @@
+const BASE = 'http://localhost:8080/api'
+
+const request = (url, method = 'GET', data = {}) => {
+    return new Promise((resolve, reject) => {
+        wx.request({
+            url: BASE + url,
+            method,
+            data,
+            header: {
+                'Authorization': 'Bearer ' + (wx.getStorageSync('token') || ''),
+                'Content-Type': 'application/json'
+            },
+            success: (res) => {
+                if (res.data.code === 0) {
+                    wx.showToast({title: res.data.msg, icon: 'none'});
+                    reject(res.data.msg)
+                } else resolve(res.data)
+            },
+            fail: (err) => {
+                wx.showToast({title: '网络错误', icon: 'none'});
+                reject(err)
+            }
+        })
+    })
+}
+
+module.exports = {
+    loginAPI: (data) => request('/customer/user/login', 'POST', data),
+    getMeAPI: () => request('/customer/user/me'),
+    getShopDetailAPI: (id) => request('/customer/shop/' + id),
+    getShopListAPI: (params) => request('/customer/shop/list', 'GET', params),
+    getNearbyShopsAPI: (data) => request('/customer/shop/nearby', 'POST', data),
+    getVoucherListAPI: (shopId) => request('/customer/voucher/list/' + shopId),
+    buyVoucherAPI: (id) => request('/customer/voucher/' + id, 'POST'),
+    seckillAPI: (id) => request('/customer/seckill/' + id, 'POST'),
+    getCategoriesAPI: (shopId, type) => request('/customer/takeout/category/' + shopId + '?type=' + type),
+    getDishesAPI: (categoryId) => request('/customer/takeout/dish/' + categoryId),
+    getSetmealsAPI: (categoryId) => request('/customer/takeout/setmeal/' + categoryId),
+    getCartAPI: () => request('/customer/takeout/cart'),
+    addCartAPI: (data) => request('/customer/takeout/cart', 'POST', data),
+    updateCartAPI: (field, data) => request('/customer/takeout/cart/' + field, 'PUT', data),
+    clearCartAPI: () => request('/customer/takeout/cart', 'DELETE'),
+    placeOrderAPI: (data) => request('/customer/takeout/order', 'POST', data),
+    getTakeoutOrdersAPI: (params) => request('/customer/takeout/orders', 'GET', params),
+    cancelOrderAPI: (id) => request('/customer/takeout/order/' + id + '/cancel', 'PUT', {reason: ''}),
+    remindAPI: (id) => request('/customer/takeout/order/' + id + '/remind', 'POST'),
+    getAddressesAPI: () => request('/customer/takeout/address'),
+    addAddressAPI: (data) => request('/customer/takeout/address', 'POST', data),
+    updateAddressAPI: (id, data) => request('/customer/takeout/address/' + id, 'PUT', data),
+    deleteAddressAPI: (id) => request('/customer/takeout/address/' + id, 'DELETE'),
+    getShopNotesAPI: (shopId) => request('/customer/explore/shop/' + shopId),
+    publishNoteAPI: (data) => request('/customer/explore', 'POST', data),
+    getMyNotesAPI: () => request('/customer/explore/my')
+}

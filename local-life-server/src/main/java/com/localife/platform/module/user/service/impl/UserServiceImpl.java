@@ -2,6 +2,7 @@ package com.localife.platform.module.user.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -113,8 +114,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("账号已被禁用");
         }
 
-        // TODO: 后续接入 BCrypt，开发阶段先用明文比对
-        if (!password.equals(user.getPassword())) {
+        // BCrypt 密码校验
+        if (!checkPw(password, user.getPassword())) {
             throw new BusinessException("用户名或密码错误");
         }
 
@@ -151,7 +152,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         employee.setName(dto.getName());
         employee.setPhone(dto.getPhone());
         employee.setUsername(dto.getUsername());
-        employee.setPassword(dto.getPassword()); // TODO: BCrypt
+        employee.setPassword(BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt()));
         employee.setSex(dto.getSex());
         employee.setIdNumber(dto.getIdNumber());
         employee.setUserType(UserTypeEnum.MERCHANT.getCode());
@@ -220,5 +221,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .userType(user.getUserType())
                 .token(token)
                 .build();
+    }
+
+    /**
+     * BCrypt 密码校验
+     */
+    private boolean checkPw(String raw, String hashed) {
+        // 兼容已存在的明文密码（首次登录后自动升级为 BCrypt）
+        if (raw.equals(hashed)) return true;
+        try {
+            return BCrypt.checkpw(raw, hashed);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

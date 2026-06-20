@@ -44,6 +44,7 @@ public class ExploreNoteController {
     @Operation(summary = "笔记详情")
     @GetMapping("/{id}")
     public Result<ExploreNote> detail(@PathVariable Long id) {
-        return Result.success(exploreNoteService.getById(id));
+        ExploreNote note = exploreNoteService.getById(id);
+        return note != null ? Result.success(note) : Result.error("笔记不存在");
     }
 }

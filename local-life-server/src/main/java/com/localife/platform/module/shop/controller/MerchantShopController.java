@@ -34,10 +34,9 @@ public class MerchantShopController {
     @PutMapping("/{id}/status")
     public Result<Void> toggleStatus(@PathVariable Long id) {
         Shop shop = shopService.getById(id);
-        if (shop != null) {
-            shop.setStatus(shop.getStatus() == 1 ? 0 : 1);
-            shopService.updateShop(shop);
-        }
+        if (shop == null) return Result.error("店铺不存在");
+        shop.setStatus(shop.getStatus() == 1 ? 0 : 1);
+        shopService.updateShop(shop);
         return Result.success();
     }
 }

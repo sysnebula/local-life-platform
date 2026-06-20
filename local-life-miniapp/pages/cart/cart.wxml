@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="header"><text class="title">🛒 购物车</text><text class="clear" bindtap="clearCart">清空</text></view>
+  <block wx:for="{{shopItems}}" wx:key="shopId">
+    <view class="shop-block"><text class="shop-name">{{item.shopName}}</text>
+      <view class="cart-item" wx:for="{{item.items}}" wx:key="dishId" wx:for-item="ci">
+        <view class="item-img"><text>{{ci.image||'🍲'}}</text></view>
+        <view class="item-info"><text class="item-name">{{ci.name}}</text><text class="item-price">¥{{ci.price}}</text></view>
+        <view class="qty"><button class="qty-btn" bindtap="changeQty" data-item="{{ci}}" data-delta="-1">−</button><text class="qty-num">{{ci.number}}</text><button class="qty-btn plus" bindtap="changeQty" data-item="{{ci}}" data-delta="1">+</button></view>
+      </view>
+    </view>
+  </block>
+  <view wx:if="{{!shopItems.length}}" class="empty"><text class="empty-icon">🛒</text><text class="empty-text">购物车空空如也</text></view>
+  <view class="bottom-bar" wx:if="{{shopItems.length}}">
+    <view class="total"><text>合计 ¥{{total}}</text></view>
+    <button class="checkout-btn" bindtap="placeOrder">去结算</button>
+  </view>
+</view>

@@ -3,6 +3,7 @@ package com.localife.platform.module.takeout.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.localife.platform.common.context.UserContext;
+import com.localife.platform.common.exception.BusinessException;
 import com.localife.platform.common.result.Result;
 import com.localife.platform.module.takeout.cart.entity.CartItem;
 import com.localife.platform.module.takeout.cart.service.CartService;
@@ -106,8 +107,11 @@ public class CustomerTakeoutController {
     @Operation(summary = "提交订单")
     @PostMapping("/order")
     public Result<Order> placeOrder(@RequestBody Map<String, Object> body) {
-        Long shopId = Long.valueOf(body.get("shopId").toString());
-        Long addressId = Long.valueOf(body.get("addressBookId").toString());
+        Object sid = body.get("shopId");
+        Object aid = body.get("addressBookId");
+        if (sid == null || aid == null) throw new BusinessException("shopId和addressBookId不能为空");
+        Long shopId = Long.valueOf(sid.toString());
+        Long addressId = Long.valueOf(aid.toString());
         String remark = (String) body.getOrDefault("remark", "");
         return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, addressId, remark));
     }

@@ -38,14 +38,13 @@ public class MerchantVoucherController {
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody VoucherDTO dto) {
         Voucher voucher = voucherService.getById(id);
-        if (voucher != null) {
-            voucher.setTitle(dto.getTitle());
-            voucher.setSubTitle(dto.getSubTitle());
-            voucher.setRules(dto.getRules());
-            voucher.setPayValue(dto.getPayValue());
-            voucher.setActualValue(dto.getActualValue());
-            voucherService.updateById(voucher);
-        }
+        if (voucher == null) return Result.error("优惠券不存在");
+        voucher.setTitle(dto.getTitle());
+        voucher.setSubTitle(dto.getSubTitle());
+        voucher.setRules(dto.getRules());
+        voucher.setPayValue(dto.getPayValue());
+        voucher.setActualValue(dto.getActualValue());
+        voucherService.updateById(voucher);
         return Result.success();
     }
 

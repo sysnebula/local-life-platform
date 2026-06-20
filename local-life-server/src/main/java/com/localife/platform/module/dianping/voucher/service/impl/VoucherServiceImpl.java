@@ -75,6 +75,7 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
     // ==================== 秒杀 ====================
 
     @Override
+    @Transactional
     public Long seckillVoucher(Long voucherId, Long userId) {
         // 1. 查询秒杀券信息
         SeckillVoucher seckill = seckillVoucherMapper.selectById(voucherId);
@@ -88,10 +89,6 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         if (now.isAfter(seckill.getEndTime())) {
             throw new BusinessException("秒杀已结束");
         }
-        if (seckill.getStock() <= 0) {
-            throw new BusinessException("已售罄");
-        }
-
         // 2. 一人一单防重
         String orderKey = RedisConstants.SECKILL_ORDER_KEY + userId + ":" + voucherId;
         Boolean first = redisTemplate.opsForValue()
@@ -100,7 +97,7 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
             throw new BusinessException("您已抢购过该秒杀券");
         }
 
-        // 3. Redisson 分布式锁
+        // 3. Redisson 分布式锁（库存校验移到锁内防超卖）
         String lockKey = RedisConstants.LOCK_SECKILL_KEY + voucherId;
         RLock lock = redissonClient.getLock(lockKey);
         try {
@@ -109,18 +106,24 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
                 throw new BusinessException("系统繁忙，请稍后再试");
             }
 
-            // 4. Lua 脚本原子扣库存
-            String stockKey = RedisConstants.SECKILL_STOCK_KEY + voucherId;
-            Long result = redisTemplate.execute(SECKILL_SCRIPT, Collections.singletonList(stockKey));
-            if (result == null || result == 0) {
-                // 库存不足，释放一人一单标记
+            // 4. 锁内重新校验 DB 库存（防止超卖）
+            SeckillVoucher latest = seckillVoucherMapper.selectById(voucherId);
+            if (latest == null || latest.getStock() <= 0) {
                 redisTemplate.delete(orderKey);
                 throw new BusinessException("已售罄");
             }
 
-            // 5. 更新DB库存（乐观校验）
-            seckill.setStock(seckill.getStock() - 1);
-            seckillVoucherMapper.updateById(seckill);
+            // 5. Lua 脚本原子扣 Redis 库存
+            String stockKey = RedisConstants.SECKILL_STOCK_KEY + voucherId;
+            Long result = redisTemplate.execute(SECKILL_SCRIPT, Collections.singletonList(stockKey));
+            if (result == null || result == 0) {
+                redisTemplate.delete(orderKey);
+                throw new BusinessException("已售罄");
+            }
+
+            // 6. 乐观 SQL 更新 DB 库存
+            latest.setStock(latest.getStock() - 1);
+            seckillVoucherMapper.updateById(latest);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -165,7 +168,6 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
 
         // 如果带了秒杀参数
         if (dto.getStock() != null && dto.getStock() > 0) {
-            dto.setStock(dto.getStock());
             convertToSeckill(voucher.getId(), dto);
         }
     }

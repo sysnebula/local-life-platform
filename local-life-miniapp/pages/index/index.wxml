@@ -1,0 +1,36 @@
+<view class="page">
+  <view class="header">
+    <view class="header-top"><text class="city">📍 北京市朝阳区</text></view>
+    <view class="search-bar"><text>🔍</text><input placeholder="搜索店铺、菜品..." /></view>
+  </view>
+
+  <view class="cats">
+    <view class="cat" wx:for="{{categories}}" wx:key="*this" bindtap="onTapCat" data-name="{{item}}">
+      <text class="cat-icon">{{icons[item]}}</text>
+      <text class="cat-name">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="sec"><view class="sec-title">⚡ 限时秒杀</view>
+    <scroll-view scroll-x class="seckill-scroll">
+      <view class="seckill-card" wx:for="{{seckills}}" wx:key="id" style="background:{{item.color}}">
+        <text class="s-name">{{item.name}}</text>
+        <text class="s-price">{{item.price}}</text>
+        <text class="s-desc">{{item.desc}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="sec"><view class="sec-title">📍 附近好店</view>
+    <view class="shop-card" wx:for="{{shops}}" wx:key="id" bindtap="goShop" data-id="{{item.id}}">
+      <view class="shop-img"><text style="font-size:36px">{{item.icon}}</text></view>
+      <view class="shop-info">
+        <text class="shop-name">{{item.name}}</text>
+        <text class="shop-addr">{{item.addr}}</text>
+        <view class="shop-tags">
+          <text class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

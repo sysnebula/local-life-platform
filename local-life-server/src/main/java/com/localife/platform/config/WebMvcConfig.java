@@ -37,7 +37,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
                         "/api/customer/user/login",
-                        "/api/customer/user/register",
                         "/api/merchant/login"
                 );
 
@@ -50,8 +49,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(customerInterceptor)
                 .addPathPatterns("/api/customer/**")
                 .excludePathPatterns(
-                        "/api/customer/user/login",
-                        "/api/customer/user/register"
+                        "/api/customer/user/login"
                 );
     }
 }

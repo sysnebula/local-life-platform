@@ -22,3 +22,13 @@ buildNumber.properties
 # Local config (contains real credentials)
 application-dev.yml
 application-prod.yml
+
+# Frontend
+node_modules/
+dist/
+.env
+.env.local
+*.log
+
+# WeChat Mini Program
+project.private.config.json
