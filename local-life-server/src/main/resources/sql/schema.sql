@@ -58,3 +58,13 @@ CREATE TABLE IF NOT EXISTS tb_shop
     INDEX idx_merchant (merchant_user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='店铺';
+
+-- 店铺类型表
+CREATE TABLE IF NOT EXISTS tb_shop_type
+(
+    id   BIGINT PRIMARY KEY,
+    name VARCHAR(32) NOT NULL COMMENT '类型名称',
+    icon VARCHAR(255) COMMENT '图标',
+    sort INT DEFAULT 0 COMMENT '排序'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='店铺类型';
