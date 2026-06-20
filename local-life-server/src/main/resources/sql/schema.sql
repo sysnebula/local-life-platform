@@ -114,3 +114,133 @@ CREATE TABLE IF NOT EXISTS tb_voucher_order
     INDEX idx_voucher (voucher_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='券订单';
+
+-- ============================================
+--  外卖模块
+-- ============================================
+
+-- 分类表
+CREATE TABLE IF NOT EXISTS tb_category
+(
+    id          BIGINT PRIMARY KEY,
+    shop_id     BIGINT      NOT NULL COMMENT 'FK to tb_shop',
+    type        TINYINT COMMENT '1=菜品分类 2=套餐分类',
+    name        VARCHAR(32) NOT NULL,
+    sort        INT     DEFAULT 0,
+    status      TINYINT DEFAULT 1,
+    create_time DATETIME,
+    update_time DATETIME,
+    INDEX idx_shop (shop_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='分类';
+
+-- 菜品表
+CREATE TABLE IF NOT EXISTS tb_dish
+(
+    id          BIGINT PRIMARY KEY,
+    shop_id     BIGINT      NOT NULL,
+    category_id BIGINT      NOT NULL,
+    name        VARCHAR(64) NOT NULL,
+    image       VARCHAR(1024),
+    description VARCHAR(256),
+    price       INT         NOT NULL COMMENT '价格(分)',
+    status      TINYINT DEFAULT 1 COMMENT '0=下架 1=上架',
+    create_time DATETIME,
+    update_time DATETIME,
+    INDEX idx_shop_cat (shop_id, category_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='菜品';
+
+-- 菜品口味表
+CREATE TABLE IF NOT EXISTS tb_dish_flavor
+(
+    id      BIGINT PRIMARY KEY,
+    dish_id BIGINT       NOT NULL,
+    name    VARCHAR(32)  NOT NULL COMMENT '口味名称',
+    value   VARCHAR(128) NOT NULL COMMENT '口味值列表',
+    INDEX idx_dish (dish_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='菜品口味';
+
+-- 套餐表
+CREATE TABLE IF NOT EXISTS tb_setmeal
+(
+    id          BIGINT PRIMARY KEY,
+    shop_id     BIGINT      NOT NULL,
+    category_id BIGINT      NOT NULL,
+    name        VARCHAR(64) NOT NULL,
+    image       VARCHAR(1024),
+    description VARCHAR(256),
+    price       INT         NOT NULL COMMENT '价格(分)',
+    status      TINYINT DEFAULT 1,
+    create_time DATETIME,
+    update_time DATETIME
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='套餐';
+
+-- 套餐菜品关联表
+CREATE TABLE IF NOT EXISTS tb_setmeal_dish
+(
+    id         BIGINT PRIMARY KEY,
+    setmeal_id BIGINT NOT NULL,
+    dish_id    BIGINT NOT NULL,
+    name       VARCHAR(64),
+    price      INT COMMENT '单价(分)',
+    copies     INT DEFAULT 1,
+    INDEX idx_setmeal (setmeal_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='套餐菜品';
+
+-- 外卖订单表
+CREATE TABLE IF NOT EXISTS tb_takeout_order
+(
+    id              BIGINT PRIMARY KEY,
+    order_number    VARCHAR(64) NOT NULL UNIQUE,
+    user_id         BIGINT      NOT NULL,
+    shop_id         BIGINT      NOT NULL,
+    address_book_id BIGINT,
+    status          TINYINT DEFAULT 0 COMMENT '0=待接单 1=已接单 2=配送中 3=已完成 4=已取消',
+    amount          INT         NOT NULL COMMENT '金额(分)',
+    remark          VARCHAR(256),
+    cancel_reason   VARCHAR(256),
+    create_time     DATETIME,
+    update_time     DATETIME,
+    INDEX idx_user (user_id),
+    INDEX idx_shop (shop_id),
+    INDEX idx_status (status)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='外卖订单';
+
+-- 订单明细表
+CREATE TABLE IF NOT EXISTS tb_order_detail
+(
+    id         BIGINT PRIMARY KEY,
+    order_id   BIGINT      NOT NULL,
+    dish_id    BIGINT,
+    setmeal_id BIGINT,
+    name       VARCHAR(64) NOT NULL,
+    image      VARCHAR(1024),
+    flavor     VARCHAR(128),
+    price      INT COMMENT '单价(分)',
+    number     INT DEFAULT 1,
+    INDEX idx_order (order_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='订单明细';
+
+-- 地址簿表
+CREATE TABLE IF NOT EXISTS tb_address_book
+(
+    id         BIGINT PRIMARY KEY,
+    user_id    BIGINT      NOT NULL,
+    consignee  VARCHAR(32) NOT NULL COMMENT '收货人',
+    sex        TINYINT,
+    phone      VARCHAR(11) NOT NULL,
+    province   VARCHAR(32),
+    city       VARCHAR(32),
+    district   VARCHAR(32),
+    detail     VARCHAR(256) COMMENT '详细地址',
+    label      VARCHAR(32) COMMENT '家/公司等',
+    is_default TINYINT DEFAULT 0,
+    INDEX idx_user (user_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='地址簿';
