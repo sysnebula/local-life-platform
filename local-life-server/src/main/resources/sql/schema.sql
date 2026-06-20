@@ -244,3 +244,20 @@ CREATE TABLE IF NOT EXISTS tb_address_book
     INDEX idx_user (user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='地址簿';
+
+-- 探店笔记表（简化版，去掉社交功能）
+CREATE TABLE IF NOT EXISTS tb_explore_note
+(
+    id          BIGINT PRIMARY KEY,
+    shop_id     BIGINT       NOT NULL COMMENT 'FK to tb_shop',
+    user_id     BIGINT       NOT NULL COMMENT 'FK to tb_user',
+    title       VARCHAR(128) NOT NULL,
+    images      VARCHAR(2048) COMMENT '图片URL列表',
+    content     TEXT,
+    status      TINYINT DEFAULT 1 COMMENT '1=已发布',
+    create_time DATETIME,
+    update_time DATETIME,
+    INDEX idx_shop (shop_id),
+    INDEX idx_user (user_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='探店笔记';
