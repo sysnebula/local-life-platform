@@ -18,26 +18,10 @@
     "color": "#999",
     "selectedColor": "#FF6B35",
     "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "🏠 首页"
-      },
-      {
-        "pagePath": "pages/explore/explore",
-        "text": "📝 探店"
-      },
-      {
-        "pagePath": "pages/orders/orders",
-        "text": "📋 订单"
-      },
-      {
-        "pagePath": "pages/cart/cart",
-        "text": "🛒 购物车"
-      },
-      {
-        "pagePath": "pages/profile/profile",
-        "text": "👤 我的"
-      }
+      { "pagePath": "pages/index/index", "text": "🏠 首页" },
+      { "pagePath": "pages/orders/orders", "text": "📋 订单" },
+      { "pagePath": "pages/cart/cart", "text": "🛒 购物车" },
+      { "pagePath": "pages/profile/profile", "text": "👤 我的" }
     ]
   }
 }

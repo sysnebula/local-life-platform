@@ -71,6 +71,7 @@
 import {onMounted, reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import {getMyShopAPI, updateShopAPI} from '../api'
+import {shopStore} from '../store'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -92,7 +93,7 @@ const form = reactive({
 onMounted(async () => {
   loading.value = true
   try {
-    const res = await getMyShopAPI(1) // shopId=1 for now
+    const res = await getMyShopAPI(shopStore.shopId)
     if (res.data) Object.assign(form, res.data)
   } catch (e) {
   } finally {

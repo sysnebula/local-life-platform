@@ -68,6 +68,7 @@
 import {onMounted, reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import {addDishAPI, deleteDishAPI, getCategoriesAPI, getDishPageAPI, toggleDishAPI, updateDishAPI} from '../api'
+import {shopStore} from '../store'
 
 const tableData = ref([]);
 const loading = ref(false);
@@ -78,12 +79,12 @@ const searchName = ref('')
 const dialogVisible = ref(false);
 const editId = ref(null);
 const categories = ref([])
-const form = reactive({name: '', categoryId: null, price: 0, description: '', flavors: [], shopId: 1})
+const form = reactive({name: '', categoryId: null, price: 0, description: '', flavors: [], shopId: shopStore.shopId})
 
 const fetch = async () => {
   loading.value = true
   try {
-    const res = await getDishPageAPI({shopId: 1, page: page.value, size: 10});
+    const res = await getDishPageAPI({shopId: shopStore.shopId, page: page.value, size: 10});
     tableData.value = res.data.records;
     total.value = res.data.total
   } catch (e) {
@@ -94,7 +95,7 @@ const fetch = async () => {
 onMounted(async () => {
   fetch()
   try {
-    const res = await getCategoriesAPI({shopId: 1, type: 1});
+    const res = await getCategoriesAPI({shopId: shopStore.shopId, type: 1});
     categories.value = res.data
   } catch (e) {
   }
@@ -117,7 +118,7 @@ const openDialog = (row) => {
 const save = async () => {
   saving.value = true
   try {
-    const data = {...form, price: Math.round(form.price * 100), shopId: 1}
+    const data = {...form, price: Math.round(form.price * 100), shopId: shopStore.shopId}
     if (editId.value) {
       data.id = editId.value;
       await updateDishAPI(data)

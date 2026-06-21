@@ -1,9 +1,43 @@
-.page{padding-bottom:20px}
+.page{background:#f5f5f5;min-height:100vh;padding-bottom:20px}
+
+/* 顶部 */
 .header{background:linear-gradient(135deg,#FF6B35,#F7931E);padding:12px 14px;color:#fff}
 .header-top{margin-bottom:8px}.city{font-size:15px;font-weight:500}
 .search-bar{display:flex;align-items:center;background:rgba(255,255,255,.25);border-radius:20px;padding:6px 12px}
-.search-bar input{flex:1;background:none;color:#fff;font-size:13px;height:28px}
-.cats{display:flex;padding:12px 8px;background:#fff;margin-bottom:6px}.cat{flex:1;text-align:center}.cat-icon{display:block;font-size:24px;margin-bottom:2px}.cat-name{font-size:11px;color:#333}
-.sec{background:#fff;margin:6px 0;padding:12px 14px}.sec-title{font-size:16px;font-weight:600;margin-bottom:10px}
-.seckill-scroll{white-space:nowrap}.seckill-card{display:inline-block;width:130px;border-radius:10px;padding:10px;color:#fff;margin-right:8px}.s-name{display:block;font-size:12px;opacity:.9}.s-price{display:block;font-size:20px;font-weight:700;margin:4px 0}.s-desc{font-size:10px;opacity:.8}
-.shop-card{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0}.shop-img{width:70px;height:70px;border-radius:8px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;flex-shrink:0}.shop-info{flex:1}.shop-name{font-size:14px;font-weight:600;display:block}.shop-addr{font-size:11px;color:#999;display:block;margin:2px 0}.shop-tags{display:flex;gap:4px}.tag{font-size:10px;background:#FFF3E0;color:#FF6B35;padding:1px 6px;border-radius:4px}
+.search-bar input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:13px;height:28px}
+.search-bar input::placeholder{color:rgba(255,255,255,.6)}
+
+/* 两大场景入口 并列 */
+.scene-row{display:flex;padding:14px 12px;gap:10px}
+.scene-card{flex:1;border-radius:12px;padding:18px 14px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.scene-card.delivery{background:linear-gradient(135deg,#FF6B35,#F7931E)}
+.scene-card.dinein{background:linear-gradient(135deg,#FF6B35,#F7931E)}
+.scene-icon{font-size:36px;display:block;margin-bottom:8px}
+.scene-title{display:block;font-size:17px;font-weight:700;margin-bottom:2px}
+.scene-desc{display:block;font-size:12px;opacity:.85}
+
+/* 通用区块 */
+.sec{background:#fff;margin:8px 12px;padding:14px;border-radius:12px}
+.sec-title{font-size:16px;font-weight:600;color:#333;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.sec-more{font-size:12px;color:#999;font-weight:400}
+
+/* 秒杀卡片 */
+.sec-sub{font-size:11px;color:#F44336;font-weight:400;margin-left:8px}
+.seckill-scroll{white-space:nowrap;margin:-4px}
+.sk-card{display:inline-block;width:155px;background:linear-gradient(135deg,#FFF5F5,#FFF8E1);border:1px solid #FFEBEE;border-radius:10px;padding:12px;margin-right:8px;vertical-align:top}
+.sk-shop{display:block;font-size:11px;color:#999;margin-bottom:4px}
+.sk-price-row{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.sk-price{font-size:24px;font-weight:700;color:#FF6B35}.sk-orig{font-size:11px;color:#ccc;text-decoration:line-through}
+.sk-title{display:block;font-size:13px;font-weight:500;color:#333;margin-bottom:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.sk-bottom{display:flex;justify-content:space-between;font-size:10px}.sk-sold{color:#999}.sk-stock{color:#F44336}
+
+/* 探店笔记 */
+.write-note-entry{display:flex;align-items:center;gap:10px;background:#fafafa;border-radius:10px;padding:12px;margin-bottom:10px}
+.wn-avatar{font-size:24px;flex-shrink:0}.wn-text{flex:1;font-size:13px;color:#bbb}.wn-btn{background:#FF6B35;color:#fff;font-size:12px;padding:4px 14px;border-radius:14px;flex-shrink:0}
+.note-card{background:#fafafa;border-radius:10px;padding:12px;margin-bottom:10px}
+.note-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.note-avatar{width:36px;height:36px;border-radius:50%;background:#FF6B35;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;font-weight:600}
+.note-user-info{flex:1}.note-user{display:block;font-size:13px;font-weight:500}.note-shop{font-size:11px;color:#FF6B35}.note-time{font-size:11px;color:#ccc}
+.note-title{display:block;font-size:15px;font-weight:600;color:#222;margin-bottom:4px}
+.note-content{font-size:13px;color:#666;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note-imgs{display:flex;gap:4px;margin-top:8px}.note-img{width:80px;height:80px;border-radius:6px}

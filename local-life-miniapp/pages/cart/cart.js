@@ -1,44 +1,81 @@
+const api = require('../../utils/api')
+
 Page({
-    data: {
-        total: 0,
-        shopItems: [
-            {
-                shopId: 1, shopName: '🍲 蜀九香火锅（三里屯店）', items: [
-                    {dishId: 1, name: '九宫格牛油锅底', price: '68', number: 1, image: '🍲'},
-                    {dishId: 3, name: '极品雪花肥牛', price: '88', number: 2, image: '🥩'},
-                    {dishId: 4, name: '手工虾滑', price: '42', number: 1, image: '🦐'}]
-            },
-            {
-                shopId: 2,
-                shopName: '☕ 星巴克臻选（国贸店）',
-                items: [{dishId: 5, name: '抹茶星冰乐', price: '38', number: 1, image: '☕'}]
-            }
-        ]
-    },
-    calcTotal() {
-        let t = 0
-        this.data.shopItems.forEach(s => s.items.forEach(i => t += parseInt(i.price) * i.number))
-        this.setData({total: t})
-    },
-    onShow() {
-        this.calcTotal()
-    },
-    changeQty(e) {
-        const {item, delta} = e.currentTarget.dataset
-        item.number += delta
-        if (item.number <= 0) {
-            this.data.shopItems.forEach(s => {
-                s.items = s.items.filter(i => i !== item)
-            })
-            this.setData({shopItems: this.data.shopItems.filter(s => s.items.length > 0)})
-        } else this.setData({shopItems: this.data.shopItems})
-        this.calcTotal()
-    },
-    clearCart() {
-        this.setData({shopItems: [], total: 0});
-        wx.showToast({title: '已清空', icon: 'none'})
-    },
-    placeOrder() {
-        wx.showToast({title: '下单成功！', icon: 'none'})
+  data: {
+    total: 0,
+    shopItems: []
+  },
+
+  onShow() {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+      wx.switchTab({ url: '/pages/profile/profile' })
+      return
     }
+    this.loadCart()
+  },
+
+  async loadCart() {
+    try {
+      const res = await api.getCartAPI()
+      const items = res.data || []
+      // 按店铺分组
+      const map = {}
+      items.forEach(i => {
+        const key = i.shopId || 0
+        if (!map[key]) map[key] = { shopId: key, shopName: '', items: [] }
+        map[key].items.push(i)
+      })
+      this.setData({ shopItems: Object.values(map) })
+      this.calcTotal()
+    } catch(e) {}
+  },
+
+  calcTotal() {
+    let t = 0
+    this.data.shopItems.forEach(s => s.items.forEach(i => t += parseInt(i.price || 0) * (i.number || 1)))
+    this.setData({ total: t })
+  },
+
+  async changeQty(e) {
+    const { item, delta } = e.currentTarget.dataset
+    const newNum = (item.number || 1) + delta
+    if (newNum <= 0) {
+      try {
+        await api.updateCartAPI(item.dishId ? 'dish_' + item.dishId : 'setmeal_' + item.setmealId, { number: 0 })
+      } catch(e) {}
+      this.loadCart()
+    } else {
+      try {
+        await api.updateCartAPI(item.dishId ? 'dish_' + item.dishId : 'setmeal_' + item.setmealId, { number: newNum })
+      } catch(e) {}
+      this.loadCart()
+    }
+  },
+
+  async clearCart() {
+    try {
+      await api.clearCartAPI()
+      this.setData({ shopItems: [], total: 0 })
+      wx.showToast({ title: '已清空', icon: 'none' })
+    } catch(e) {}
+  },
+
+  async placeOrder() {
+    if (!this.data.shopItems.length) return
+    const shopId = this.data.shopItems[0].shopId
+    try {
+      // 获取默认地址
+      const addrRes = await api.getAddressesAPI()
+      const addrs = addrRes.data || []
+      const defaultAddr = addrs.find(a => a.isDefault) || addrs[0]
+      if (!defaultAddr) {
+        wx.showToast({ title: '请先添加收货地址', icon: 'none' })
+        return
+      }
+      await api.placeOrderAPI({ shopId, addressBookId: defaultAddr.id, remark: '' })
+      wx.showToast({ title: '下单成功！', icon: 'success' })
+      this.loadCart()
+    } catch(e) {}
+  }
 })

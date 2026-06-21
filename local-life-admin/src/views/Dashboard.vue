@@ -14,7 +14,7 @@
       </el-col>
     </el-row>
     <el-card>
-      <template #header>🔔 最新订单（WebSocket 实时推送）</template>
+      <template #header>🔔 最新订单（每30秒自动刷新）</template>
       <el-table :data="orders" stripe>
         <el-table-column prop="orderNumber" label="订单号" width="160"/>
         <el-table-column prop="amount" label="金额" width="100">
@@ -32,6 +32,7 @@
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
 import {getOrderPageAPI} from '../api'
+import {shopStore} from '../store'
 
 const stats = reactive([
   {icon: '📋', value: '-', label: '今日订单'}, {icon: '💰', value: '-', label: '今日营业额'},
@@ -39,16 +40,20 @@ const stats = reactive([
 ])
 const orders = ref([])
 
-onMounted(async () => {
+const fetchOrders = async () => {
   try {
-    const res = await getOrderPageAPI({page: 1, size: 5})
+    const res = await getOrderPageAPI({shopId: shopStore.shopId, page: 1, size: 5})
     orders.value = res.data?.records || []
     if (res.data) {
       stats[0].value = res.data.total || '-'
       const pending = res.data.records?.filter(o => o.status === 0).length || 0
       stats[2].value = pending
     }
-  } catch (e) {
-  }
+  } catch (e) {}
+}
+
+onMounted(() => {
+  fetchOrders()
+  setInterval(fetchOrders, 30000)
 })
 </script>

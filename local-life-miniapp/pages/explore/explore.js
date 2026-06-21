@@ -1,35 +1,93 @@
+const api = require('../../utils/api')
+
 Page({
-    data: {
-        showPublish: false,
-        notes: [
-            {
-                id: 1,
-                userName: '美食达人小李',
-                shopName: '蜀九香火锅',
-                time: '2天前',
-                title: '🔥 京城必打卡的重庆火锅！',
-                content: '这家店的九宫格锅底真的很正宗！牛油香气浓郁，辣度也恰到好处。',
-                color: '#FF6B35'
-            },
-            {
-                id: 2,
-                userName: '咖啡爱好者小王',
-                shopName: '星巴克臻选',
-                time: '3天前',
-                title: '☕ 新开臻选店，环境绝了',
-                content: '周末来国贸逛街发现的，装修很有格调。窗边的位置可以看到CBD天际线~',
-                color: '#E91E63'
-            }
-        ]
-    },
-    showPublish() {
-        this.setData({showPublish: true})
-    },
-    hidePublish() {
-        this.setData({showPublish: false})
-    },
-    publish() {
-        this.setData({showPublish: false});
-        wx.showToast({title: '发布成功！', icon: 'none'})
+  data: {
+    notes: [],
+    showOrderPicker: false,
+    showForm: false,
+    orders: [],
+    selectedOrder: {},
+    form: { title: '', content: '' }
+  },
+
+  onShow() {
+    this.loadNotes(1)
+  },
+
+  async loadNotes(shopId) {
+    try {
+      const res = await api.getShopNotesAPI(shopId, { page: 1, size: 20 })
+      const records = (res.data?.records || []).map(n => ({
+        ...n,
+        color: '#' + Math.floor(Math.random()*16777215).toString(16),
+        time: n.createTime ? n.createTime.substring(0, 10) : ''
+      }))
+      this.setData({ notes: records })
+    } catch(e) {}
+  },
+
+  // 步骤1: 检查登录 → 拉已完成订单
+  async startWrite() {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+      wx.switchTab({ url: '/pages/profile/profile' })
+      return
     }
+    // 拉外卖已完成订单
+    const orders = []
+    try {
+      const takeoutRes = await api.getTakeoutOrdersAPI({ page: 1, size: 50 })
+      const takeoutDone = (takeoutRes.data?.records || [])
+        .filter(o => o.status >= 3)
+        .map(o => ({ id: o.id, shopId: o.shopId, shopName: '', amount: ((o.amount||0)/100).toFixed(2), type: 'takeout' }))
+      orders.push(...takeoutDone)
+    } catch(e) {}
+    // 拉券已核销订单
+    try {
+      const voucherRes = await api.getVoucherOrdersAPI({ page: 1, size: 50 })
+      const voucherDone = (voucherRes.data?.records || [])
+        .filter(o => o.status >= 3)
+        .map(o => ({ id: o.id, shopId: 1, shopName: '', amount: '-', type: 'voucher' }))
+      orders.push(...voucherDone)
+    } catch(e) {}
+
+    if (!orders.length) {
+      wx.showToast({ title: '暂无已完成订单', icon: 'none' })
+      return
+    }
+    this.setData({ orders, showOrderPicker: true })
+  },
+
+  hideOrderPicker() { this.setData({ showOrderPicker: false }) },
+
+  // 步骤2: 选好订单 → 打开写笔记表单
+  selectOrder(e) {
+    const { id, type, shop, shopName } = e.currentTarget.dataset
+    this.setData({
+      showOrderPicker: false,
+      showForm: true,
+      selectedOrder: { id, type, shopId: shop, shopName },
+      form: { title: '', content: '' }
+    })
+  },
+
+  hideForm() { this.setData({ showForm: false }) },
+  onTitle(e) { this.setData({ 'form.title': e.detail.value }) },
+  onContent(e) { this.setData({ 'form.content': e.detail.value }) },
+
+  async publish() {
+    try {
+      await api.publishNoteAPI({
+        shopId: this.data.selectedOrder.shopId,
+        orderId: this.data.selectedOrder.id,
+        orderType: this.data.selectedOrder.type === 'takeout' ? 1 : 0,
+        title: this.data.form.title || '探店笔记',
+        content: this.data.form.content || '（无内容）',
+        images: ''
+      })
+      wx.showToast({ title: '发布成功！', icon: 'success' })
+      this.setData({ showForm: false })
+      this.loadNotes(1)
+    } catch(e) {}
+  }
 })

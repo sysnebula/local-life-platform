@@ -18,7 +18,8 @@ http.interceptors.response.use(
         return res.data
     },
     err => {
-        ElMessage.error('请求失败');
+        if (err.response?.status === 401) { localStorage.clear(); window.location.href = '/login'; return Promise.reject(err) }
+        ElMessage.error(err.response?.data?.msg || '请求失败');
         return Promise.reject(err)
     }
 )

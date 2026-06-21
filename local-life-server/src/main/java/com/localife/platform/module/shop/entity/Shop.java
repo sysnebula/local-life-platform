@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -25,7 +26,7 @@ public class Shop {
     private Double latitude;
     private Integer avgPrice;
     private Integer sold;
-    private Double score;
+    private BigDecimal score;
     private String openHours;
     private String phone;
     private String description;

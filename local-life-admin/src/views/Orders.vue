@@ -60,6 +60,7 @@ import {
   getOrderDetailAPI,
   getOrderPageAPI
 } from '../api'
+import {shopStore} from '../store'
 
 const tableData = ref([]);
 const loading = ref(false);
@@ -72,7 +73,7 @@ const details = ref([])
 const fetch = async () => {
   loading.value = true
   try {
-    const res = await getOrderPageAPI({shopId: 1, status: filterStatus.value, page: page.value, size: 10});
+    const res = await getOrderPageAPI({shopId: shopStore.shopId, status: filterStatus.value, page: page.value, size: 10});
     tableData.value = res.data.records;
     total.value = res.data.total
   } catch (e) {

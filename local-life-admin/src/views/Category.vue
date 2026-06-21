@@ -44,6 +44,7 @@
 import {onMounted, reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import {addCategoryAPI, deleteCategoryAPI, getCategoriesAPI, updateCategoryAPI} from '../api'
+import {shopStore} from '../store'
 
 const catType = ref(1)
 const tableData = ref([])
@@ -51,12 +52,12 @@ const loading = ref(false)
 const saving = ref(false)
 const dialogVisible = ref(false)
 const editId = ref(null)
-const form = reactive({name: '', sort: 0, type: 1, shopId: 1})
+const form = reactive({name: '', sort: 0, type: 1, shopId: shopStore.shopId})
 
 const fetch = async () => {
   loading.value = true
   try {
-    const res = await getCategoriesAPI({shopId: 1, type: catType.value});
+    const res = await getCategoriesAPI({shopId: shopStore.shopId, type: catType.value});
     tableData.value = res.data
   } catch (e) {
   } finally {

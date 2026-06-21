@@ -79,6 +79,7 @@ import {
   toggleSetmealAPI,
   updateSetmealAPI
 } from '../api'
+import {shopStore} from '../store'
 
 const tableData = ref([]);
 const loading = ref(false);
@@ -89,12 +90,12 @@ const searchName = ref('')
 const dialogVisible = ref(false);
 const editId = ref(null);
 const categories = ref([])
-const form = reactive({name: '', categoryId: null, price: 0, description: '', dishes: [], shopId: 1})
+const form = reactive({name: '', categoryId: null, price: 0, description: '', dishes: [], shopId: shopStore.shopId})
 
 onMounted(async () => {
   fetch()
   try {
-    const res = await getCategoriesAPI({shopId: 1, type: 2});
+    const res = await getCategoriesAPI({shopId: shopStore.shopId, type: 2});
     categories.value = res.data
   } catch (e) {
   }
@@ -102,7 +103,7 @@ onMounted(async () => {
 const fetch = async () => {
   loading.value = true
   try {
-    const res = await getSetmealPageAPI({shopId: 1, page: page.value, size: 10});
+    const res = await getSetmealPageAPI({shopId: shopStore.shopId, page: page.value, size: 10});
     tableData.value = res.data.records;
     total.value = res.data.total
   } catch (e) {
@@ -128,7 +129,7 @@ const save = async () => {
     const data = {
       ...form,
       price: Math.round(form.price * 100),
-      shopId: 1,
+      shopId: shopStore.shopId,
       dishes: form.dishes.map(d => ({...d, price: Math.round(d.price * 100)}))
     }
     if (editId.value) {

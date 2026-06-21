@@ -17,6 +17,10 @@ public class ExploreNote {
     private Long id;
     private Long shopId;
     private Long userId;
+    /** 关联订单ID */
+    private Long orderId;
+    /** 订单类型: 0=券订单 1=外卖订单 */
+    private Integer orderType;
     private String title;
     private String images;
     private String content;

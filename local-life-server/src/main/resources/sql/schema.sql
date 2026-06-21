@@ -245,12 +245,14 @@ CREATE TABLE IF NOT EXISTS tb_address_book
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='地址簿';
 
--- 探店笔记表（简化版，去掉社交功能）
+-- 探店笔记表（关联订单 — 只有消费过才能写笔记）
 CREATE TABLE IF NOT EXISTS tb_explore_note
 (
     id          BIGINT PRIMARY KEY,
     shop_id     BIGINT       NOT NULL COMMENT 'FK to tb_shop',
     user_id     BIGINT       NOT NULL COMMENT 'FK to tb_user',
+    order_id    BIGINT       NOT NULL COMMENT '关联订单ID (tb_takeout_order或tb_voucher_order)',
+    order_type  TINYINT      NOT NULL DEFAULT 0 COMMENT '0=券订单 1=外卖订单',
     title       VARCHAR(128) NOT NULL,
     images      VARCHAR(2048) COMMENT '图片URL列表',
     content     TEXT,

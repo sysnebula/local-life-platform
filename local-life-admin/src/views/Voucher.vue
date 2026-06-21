@@ -89,6 +89,7 @@
 import {onMounted, reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import {convertSeckillAPI, createVoucherAPI, deleteVoucherAPI, getVoucherPageAPI, updateVoucherAPI} from '../api'
+import {shopStore} from '../store'
 
 const tableData = ref([]);
 const loading = ref(false);
@@ -100,13 +101,13 @@ const dialogVisible = ref(false);
 const seckillVisible = ref(false)
 const editId = ref(null);
 const seckillVoucherId = ref(null)
-const form = reactive({title: '', subTitle: '', payValue: 0, actualValue: 0, rules: '', shopId: 1})
+const form = reactive({title: '', subTitle: '', payValue: 0, actualValue: 0, rules: '', shopId: shopStore.shopId})
 const seckillForm = reactive({payValue: 0, stock: 200, beginTime: '', endTime: ''})
 
 const fetch = async () => {
   loading.value = true
   try {
-    const res = await getVoucherPageAPI({shopId: 1, type: filterType.value || undefined, page: page.value, size: 10});
+    const res = await getVoucherPageAPI({shopId: shopStore.shopId, type: filterType.value || undefined, page: page.value, size: 10});
     tableData.value = res.data.records;
     total.value = res.data.total
   } catch (e) {
@@ -134,7 +135,7 @@ const save = async () => {
       ...form,
       payValue: Math.round(form.payValue * 100),
       actualValue: Math.round(form.actualValue * 100),
-      shopId: 1
+      shopId: shopStore.shopId
     }
     if (editId.value) await updateVoucherAPI(editId.value, data)
     else await createVoucherAPI(data)

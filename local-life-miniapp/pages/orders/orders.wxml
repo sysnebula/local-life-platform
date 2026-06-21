@@ -1,8 +1,8 @@
 <view class="page">
   <view class="tabs">
-    <text class="tab {{tab==='all'?'active':''}}" bindtap="filter" data-tab="all">全部</text>
-    <text class="tab {{tab==='doing'?'active':''}}" bindtap="filter" data-tab="doing">进行中</text>
-    <text class="tab {{tab==='done'?'active':''}}" bindtap="filter" data-tab="done">已完成</text>
+    <text class="tab {{tab==='all'?'active':''}}" bindtap="onTabChange" data-tab="all">全部</text>
+    <text class="tab {{tab==='doing'?'active':''}}" bindtap="onTabChange" data-tab="doing">进行中</text>
+    <text class="tab {{tab==='done'?'active':''}}" bindtap="onTabChange" data-tab="done">已完成</text>
   </view>
   <view class="order-card" wx:for="{{filteredOrders}}" wx:key="id">
     <view class="o-header"><text class="o-shop">{{item.shopName}}</text><text class="o-type {{item.type}}">{{item.type==='voucher'?'团购券':'外卖'}}</text></view>
