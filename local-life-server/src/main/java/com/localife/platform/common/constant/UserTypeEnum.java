@@ -11,8 +11,7 @@ import lombok.Getter;
 public enum UserTypeEnum {
 
     CUSTOMER(0, "顾客"),
-    MERCHANT(1, "商家/店长"),
-    EMPLOYEE(2, "店员");
+    MERCHANT(1, "商家/店长");
 
     private final Integer code;
     private final String desc;

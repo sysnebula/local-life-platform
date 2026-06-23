@@ -1,20 +1,48 @@
+const api = require('../../utils/api')
+
 Page({
-  data: {
-    seckills: [
-      { id:1, name:'蜀九香火锅', title:'100元代金券', price:'9.9', orig:'100', sold:'1832', stock:'168' },
-      { id:2, name:'星巴克', title:'任意饮品券', price:'19.9', orig:'38', sold:'3520', stock:'480' },
-      { id:3, name:'肯德基', title:'藤椒鸡腿堡券', price:'9.9', orig:'19', sold:'856', stock:'144' }
-    ],
-    shops: [
-      { id:1, icon:'🍲', name:'蜀九香火锅', area:'三里屯', isHot:true, canBook:true, score:'4.8', avgPrice:'¥128', distance:'1.2km', meal:'双人火锅套餐 ¥88', mealSold:'1200' },
-      { id:3, icon:'☕', name:'星巴克臻选', area:'国贸', isHot:true, score:'4.6', avgPrice:'¥45', distance:'0.8km', meal:'任意饮品券 ¥19.9', mealSold:'3500' },
-      { id:4, icon:'🦆', name:'大董烤鸭', area:'工体', canBook:true, score:'4.7', avgPrice:'¥198', distance:'2.1km', meal:'精品双人餐 ¥298', mealSold:'680' }
-    ]
+  data: { seckills: [], shops: [] },
+
+  onShow() {
+    this.loadSeckills()
+    this.loadShops()
   },
+
+  async loadSeckills() {
+    try {
+      // 拉全部店铺的券，过滤出秒杀券
+      const res = await api.getVoucherListAPI(1) // 以 shopId=1 为入口
+      const all = res.data?.records || []
+      this.setData({ seckills: all.filter(v => v.type === 1).map(v => ({
+        id: v.id,
+        shopId: v.shopId,
+        name: v.title,
+        price: (v.payValue/100).toFixed(1),
+        orig: (v.actualValue/100).toFixed(0),
+        sold: '...',
+        stock: '...'
+      })) })
+    } catch(e) {}
+  },
+
+  async loadShops() {
+    try {
+      const res = await api.getShopListAPI({ page: 1, size: 50 })
+      this.setData({ shops: (res.data?.records || []).map(s => ({
+        id: s.id,
+        icon: '🍲',
+        name: s.name,
+        area: s.area || '',
+        score: s.score || '-',
+        avgPrice: '¥' + ((s.avgPrice||0)/100).toFixed(0),
+        distance: s.area || '-',
+        meal: '',
+        mealSold: ''
+      })) })
+    } catch(e) {}
+  },
+
   goShop(e) {
     wx.navigateTo({ url: '/pages/shop-detail/shop-detail?id=' + e.currentTarget.dataset.id })
-  },
-  goSeckill(e) {
-    wx.navigateTo({ url: '/pages/shop-detail/shop-detail?id=' + e.currentTarget.dataset.shopid })
   }
 })

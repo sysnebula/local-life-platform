@@ -1,8 +1,11 @@
 -- ============================================
 --  本地生活平台 — 建表 SQL
+--  执行方式: mysql -u root -p < schema.sql
+--  注意: 会先删除旧库再重建，数据会丢失！
 -- ============================================
 
-CREATE DATABASE IF NOT EXISTS local_life
+DROP DATABASE IF EXISTS local_life;
+CREATE DATABASE local_life
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_general_ci;
 
@@ -13,20 +16,17 @@ CREATE TABLE IF NOT EXISTS tb_user
 (
     id          BIGINT PRIMARY KEY,
     phone       VARCHAR(11) COMMENT '手机号',
-    openid      VARCHAR(45) UNIQUE COMMENT '微信openid',
     username    VARCHAR(32) UNIQUE COMMENT '商家登录用户名',
     password    VARCHAR(128) COMMENT 'BCrypt密码',
     nick_name   VARCHAR(32) COMMENT '昵称',
     name        VARCHAR(32) COMMENT '真实姓名',
     icon        VARCHAR(1024) COMMENT '头像URL',
     sex         TINYINT COMMENT '0=未知 1=男 2=女',
-    id_number   VARCHAR(18) COMMENT '身份证号',
-    user_type   TINYINT NOT NULL DEFAULT 0 COMMENT '0=顾客 1=商家/店长 2=店员',
+    user_type   TINYINT NOT NULL DEFAULT 0 COMMENT '0=顾客 1=商家/店长',
     status      TINYINT NOT NULL DEFAULT 1 COMMENT '0=禁用 1=启用',
     create_time DATETIME         DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE INDEX idx_phone_type (phone, user_type),
-    INDEX idx_openid (openid),
     INDEX idx_user_type (user_type)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='统一用户表';

@@ -23,11 +23,6 @@ public class User {
     private String phone;
 
     /**
-     * 微信 openid
-     */
-    private String openid;
-
-    /**
      * 用户名（商家登录凭证）
      */
     private String username;
@@ -57,9 +52,7 @@ public class User {
      */
     private Integer sex;
 
-    /**
-     * 身份证号（店员用）
-     */
+
 
     /**
      * 用户类型: 0=顾客, 1=商家
