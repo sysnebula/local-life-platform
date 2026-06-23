@@ -11,8 +11,8 @@ USE local_life;
 -- 商家用户（密码明文 123456，首次登录后由 checkPw 明文比对通过）
 INSERT INTO tb_user (id, phone, username, password, nick_name, name, sex, user_type, status, create_time) VALUES
 (1, '13800001111', 'admin',    '123456', '张店长', '张建国', 1, 1, 1, NOW()),
-(2, '13900002222', 'chef_wang', '123456', '王大厨', '王明', 1, 1, 1, NOW()),
-(3, '13700003333', 'waiter_li', '123456', '小李', '李芳', 2, 1, 1, NOW());
+(2, '13900002222', 'chef_wang', '123456', '王大厨', '王明', 1, 2, 1, NOW()),
+(3, '13700003333', 'waiter_li', '123456', '小李', '李芳', 2, 2, 1, NOW());
 
 -- 顾客用户（手机号即登录凭证，验证码 123456）
 INSERT INTO tb_user (id, phone, nick_name, icon, sex, user_type, status, create_time) VALUES
@@ -23,13 +23,13 @@ INSERT INTO tb_user (id, phone, nick_name, icon, sex, user_type, status, create_
 
 -- ===================== 店铺类型 =====================
 
-INSERT INTO tb_shop_type (id, name, icon, sort) VALUES
-(1, '火锅', '🍲', 1),
-(2, '快餐', '🍗', 2),
-(3, '饮品甜品', '🧋', 3),
-(4, '川菜湘菜', '🌶️', 4),
-(5, '日料韩餐', '🍣', 5),
-(6, '烧烤', '🍖', 6);
+INSERT INTO tb_shop_type (id, name, sort) VALUES
+(1, '火锅', 1),
+(2, '快餐', 2),
+(3, '饮品甜品', 3),
+(4, '川菜湘菜', 4),
+(5, '日料韩餐', 5),
+(6, '烧烤', 6);
 
 -- ===================== 店铺 =====================
 
@@ -198,3 +198,5 @@ INSERT INTO tb_explore_note (id, shop_id, user_id, order_id, order_type, title, 
 (1, 1, 10, 100, 0, '🔥 京城必打卡的重庆火锅！', 'https://img.localife.cn/note/note1_1.jpg,https://img.localife.cn/note/note1_2.jpg', '这家店的九宫格锅底真的很正宗！牛油香气浓郁，辣度也恰到好处。必点雪花肥牛和虾滑，食材新鲜分量足。服务员态度很好，会主动帮忙调火候。人均100出头，性价比很高！下次还会再来~', 1, '2026-06-18 10:00:00'),
 (2, 1, 11, 101, 0, '双人套餐超划算', 'https://img.localife.cn/note/note2.jpg', '团了88的双人券来的，性价比很高！两人吃撑了还没吃完。推荐番茄鸳鸯锅，番茄汤底可以直接喝。肥牛质量很好，不是那种冷冻的薄片。', 1, '2026-06-17 09:30:00'),
 (3, 3, 12, 1002, 1, '☕ 国贸新开的臻选店，环境绝了', 'https://img.localife.cn/note/note3.jpg', '周末来国贸逛街发现的，这家臻选店装修很有格调。点了招牌冷萃和抹茶星冰乐，口感一如既往地好。窗边的位置可以看到CBD天际线，非常适合拍照打卡~', 1, '2026-06-16 14:00:00');
+
+

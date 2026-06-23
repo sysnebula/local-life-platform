@@ -18,9 +18,15 @@ public class UserContext {
     public static void setPhone(String phone) { PHONE.set(phone); }
     public static String getPhone() { return PHONE.get(); }
 
+    private static final ThreadLocal<Long> SHOP_ID = new ThreadLocal<>();
+
+    public static void setShopId(Long shopId) { SHOP_ID.set(shopId); }
+    public static Long getShopId() { return SHOP_ID.get(); }
+
     public static void clear() {
         USER_ID.remove();
         USER_TYPE.remove();
         PHONE.remove();
+        SHOP_ID.remove();
     }
 }

@@ -5,6 +5,7 @@ import com.localife.platform.common.context.UserContext;
 import com.localife.platform.common.result.Result;
 import com.localife.platform.module.user.dto.EmployeeDTO;
 import com.localife.platform.module.user.dto.MerchantLoginDTO;
+import com.localife.platform.module.user.dto.MerchantRegisterDTO;
 import com.localife.platform.module.user.entity.User;
 import com.localife.platform.module.user.service.UserService;
 import com.localife.platform.module.user.vo.UserVO;
@@ -28,6 +29,12 @@ public class MerchantUserController {
     @PostMapping("/login")
     public Result<UserVO> login(@RequestBody MerchantLoginDTO dto) {
         return Result.success(userService.loginByPassword(dto));
+    }
+
+    @Operation(summary = "商家注册（同时创建用户和店铺）")
+    @PostMapping("/register")
+    public Result<UserVO> register(@RequestBody MerchantRegisterDTO dto) {
+        return Result.success(userService.register(dto));
     }
 
     @Operation(summary = "获取当前登录商家信息")

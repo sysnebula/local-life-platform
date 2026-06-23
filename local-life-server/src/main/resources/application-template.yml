@@ -85,5 +85,3 @@ springdoc:
       paths-to-match: /api/customer/**
     - group: merchant
       paths-to-match: /api/merchant/**
-    - group: common
-      paths-to-match: /api/common/**

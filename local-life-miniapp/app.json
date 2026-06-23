@@ -2,6 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/shop-detail/shop-detail",
+    "pages/delivery/delivery",
+    "pages/dinein/dinein",
     "pages/cart/cart",
     "pages/orders/orders",
     "pages/explore/explore",

@@ -4,6 +4,8 @@ Page({
   data: {
     tab: 0,
     shopId: null,
+    shopName: '',
+    shop: {},
     vouchers: [],
     menu: [],
     notes: []
@@ -22,7 +24,7 @@ Page({
   async loadShop(id) {
     try {
       const res = await api.getShopDetailAPI(id)
-      if (res.data) this.setData({ shopName: res.data.name })
+      if (res.data) this.setData({ shop: res.data, shopName: res.data.name })
     } catch(e) {}
   },
 

@@ -69,7 +69,19 @@ Page({
     } catch(e) {}
   },
 
-  reorder() {
-    wx.showToast({ title: '已加入购物车', icon: 'none' })
+  async reorder(e) {
+    const items = e.currentTarget.dataset.items
+    if (!items || !items.length) {
+      wx.showToast({ title: '订单数据异常', icon: 'none' })
+      return
+    }
+    try {
+      for (const item of items) {
+        await api.addCartAPI({ dishId: item.dishId, setmealId: item.setmealId, name: item.name, price: item.price, number: item.number || 1 })
+      }
+      wx.showToast({ title: '已加入购物车', icon: 'success' })
+    } catch(e) {
+      wx.showToast({ title: '添加失败', icon: 'none' })
+    }
   }
 })

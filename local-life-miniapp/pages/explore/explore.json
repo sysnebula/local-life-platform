@@ -1,4 +1,4 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "探店笔记"
+  "enablePullDownRefresh": true, "navigationBarTitleText": "探店笔记"
 }

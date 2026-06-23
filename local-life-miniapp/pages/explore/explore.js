@@ -80,7 +80,7 @@ Page({
       await api.publishNoteAPI({
         shopId: this.data.selectedOrder.shopId,
         orderId: this.data.selectedOrder.id,
-        orderType: this.data.selectedOrder.type === 'takeout' ? 1 : 0,
+        orderType: Number(this.data.selectedOrder.type),
         title: this.data.form.title || '探店笔记',
         content: this.data.form.content || '（无内容）',
         images: ''

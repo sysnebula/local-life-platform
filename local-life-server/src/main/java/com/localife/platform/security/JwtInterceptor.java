@@ -38,6 +38,9 @@ public class JwtInterceptor implements HandlerInterceptor {
         UserContext.setUserType(userType);
         UserContext.setPhone(phone);
 
+        Object shopId = claims.get(JwtClaimsConstant.SHOP_ID);
+        if (shopId != null) UserContext.setShopId(((Number) shopId).longValue());
+
         return true;
     }
 

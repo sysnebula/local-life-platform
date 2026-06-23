@@ -1,8 +1,8 @@
 <view class="page">
   <view class="hero">
-    <text class="h-name">蜀九香火锅（三里屯店）</text>
-    <text class="h-meta">⭐4.8 · 月售3286 · 🕐10:00-22:00</text>
-    <text class="h-meta">📍 工体北路甲2号 · 距您1.2km</text>
+    <text class="h-name">{{shopName||'加载中...'}}</text>
+    <text class="h-meta">⭐{{shop.score||'-'}} · 人均¥{{(shop.avgPrice/100)||'-'}} · 🕐{{shop.openHours||'-'}}</text>
+    <text class="h-meta">📍 {{shop.address||'-'}} · 距您{{shop.distance||'-'}}km</text>
   </view>
 
   <view class="tabs">

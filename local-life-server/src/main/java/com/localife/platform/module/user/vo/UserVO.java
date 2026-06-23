@@ -18,4 +18,5 @@ public class UserVO {
     private Integer sex;
     private Integer userType;
     private String token;
+    private Long shopId;  // 注册时返回，商家所属店铺ID
 }

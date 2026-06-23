@@ -33,6 +33,7 @@ module.exports = {
     getVoucherListAPI: (shopId) => request('/customer/voucher/list/' + shopId),
     buyVoucherAPI: (id) => request('/customer/voucher/' + id, 'POST'),
     seckillAPI: (id) => request('/customer/seckill/' + id, 'POST'),
+    getVoucherOrdersAPI: (params) => request('/customer/voucher/orders', 'GET', params),
     getCategoriesAPI: (shopId, type) => request('/customer/takeout/category/' + shopId + '?type=' + type),
     getDishesAPI: (categoryId) => request('/customer/takeout/dish/' + categoryId),
     getSetmealsAPI: (categoryId) => request('/customer/takeout/setmeal/' + categoryId),
@@ -48,6 +49,7 @@ module.exports = {
     addAddressAPI: (data) => request('/customer/takeout/address', 'POST', data),
     updateAddressAPI: (id, data) => request('/customer/takeout/address/' + id, 'PUT', data),
     deleteAddressAPI: (id) => request('/customer/takeout/address/' + id, 'DELETE'),
+    setDefaultAddressAPI: (id) => request('/customer/takeout/address/' + id + '/default', 'PUT'),
     getShopNotesAPI: (shopId) => request('/customer/explore/shop/' + shopId),
     publishNoteAPI: (data) => request('/customer/explore', 'POST', data),
     getMyNotesAPI: () => request('/customer/explore/my')

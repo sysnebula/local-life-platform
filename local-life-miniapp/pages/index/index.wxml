@@ -23,7 +23,7 @@
   <view class="sec">
     <view class="sec-title">⚡ 团购秒杀<text class="sec-sub">到店可享·限量开抢</text><text class="sec-more" bindtap="goAllSeckill">更多 ›</text></view>
     <scroll-view scroll-x class="seckill-scroll" enhanced show-scrollbar="{{false}}">
-      <view class="sk-card" wx:for="{{seckills}}" wx:key="id" bindtap="goSeckill" data-id="{{item.id}}">
+      <view class="sk-card" wx:for="{{seckills}}" wx:key="id" bindtap="goSeckill" data-id="{{item.id}}" data-shopid="{{item.shopId}}">
         <text class="sk-shop">{{item.shopName}}</text>
         <view class="sk-price-row"><text class="sk-price">¥{{item.price}}</text><text class="sk-orig">¥{{item.orig}}</text></view>
         <text class="sk-title">{{item.title}}</text>

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS tb_user
     icon        VARCHAR(1024) COMMENT '头像URL',
     sex         TINYINT COMMENT '0=未知 1=男 2=女',
     id_number   VARCHAR(18) COMMENT '身份证号',
-    user_type   TINYINT NOT NULL DEFAULT 0 COMMENT '0=顾客 1=商家',
+    user_type   TINYINT NOT NULL DEFAULT 0 COMMENT '0=顾客 1=商家/店长 2=店员',
     status      TINYINT NOT NULL DEFAULT 1 COMMENT '0=禁用 1=启用',
     create_time DATETIME         DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS tb_shop_type
 (
     id   BIGINT PRIMARY KEY,
     name VARCHAR(32) NOT NULL COMMENT '类型名称',
-    icon VARCHAR(255) COMMENT '图标',
     sort INT DEFAULT 0 COMMENT '排序'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='店铺类型';

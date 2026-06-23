@@ -20,7 +20,7 @@ Page({
   },
 
   goAllSeckill() {
-    wx.showToast({ title: '查看全部秒杀券', icon: 'none' })
+    wx.navigateTo({ url: '/pages/dinein/dinein' })
   },
 
   goExplore() {
@@ -34,6 +34,14 @@ Page({
       return
     }
     wx.navigateTo({ url: '/pages/explore/explore' })
+  },
+
+  goDelivery() {
+    wx.navigateTo({ url: '/pages/delivery/delivery' })
+  },
+
+  goDinein() {
+    wx.navigateTo({ url: '/pages/dinein/dinein' })
   },
 
   goNote(e) {

@@ -14,8 +14,39 @@
           <el-button type="primary" size="large" style="width:100%" @click="login" :loading="loading">登 录</el-button>
         </el-form-item>
       </el-form>
-      <p class="hint">默认账号 admin / 123456</p>
+      <p class="hint">默认账号 admin / 123456 · <el-button type="primary" link @click="showRegister=true">注册商家</el-button></p>
     </div>
+
+    <!-- 注册弹窗 -->
+    <el-dialog v-model="showRegister" title="🏪 商家注册（同步创建店铺）" width="520px" :close-on-click-modal="false">
+      <el-form :model="regForm" label-width="90px" size="default">
+        <el-divider content-position="left">👤 账号信息</el-divider>
+        <el-row :gutter="12">
+          <el-col :span="12"><el-form-item label="用户名"><el-input v-model="regForm.username" placeholder="登录用户名" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="密码"><el-input v-model="regForm.password" type="password" placeholder="至少6位" /></el-form-item></el-col>
+        </el-row>
+        <el-row :gutter="12">
+          <el-col :span="12"><el-form-item label="姓名"><el-input v-model="regForm.name" placeholder="真实姓名" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="手机号"><el-input v-model="regForm.phone" placeholder="11位手机号" /></el-form-item></el-col>
+        </el-row>
+        <el-divider content-position="left">🏪 店铺信息</el-divider>
+        <el-row :gutter="12">
+          <el-col :span="16"><el-form-item label="店铺名称"><el-input v-model="regForm.shopName" placeholder="如：老王火锅" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item label="类型"><el-select v-model="regForm.typeId" placeholder="选择"><el-option label="火锅" :value="1" /><el-option label="快餐" :value="2" /><el-option label="饮品" :value="3" /><el-option label="川菜" :value="4" /><el-option label="日料" :value="5" /><el-option label="烧烤" :value="6" /></el-select></el-form-item></el-col>
+        </el-row>
+        <el-form-item label="地址"><el-input v-model="regForm.address" placeholder="详细地址" /></el-form-item>
+        <el-row :gutter="12">
+          <el-col :span="12"><el-form-item label="区域"><el-input v-model="regForm.area" placeholder="如：朝阳区" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="联系电话"><el-input v-model="regForm.shopPhone" placeholder="店铺电话" /></el-form-item></el-col>
+        </el-row>
+        <el-form-item label="营业时间"><el-input v-model="regForm.openHours" placeholder="如：10:00-22:00" /></el-form-item>
+        <el-form-item label="简介"><el-input v-model="regForm.description" type="textarea" :rows="2" placeholder="店铺简介..." /></el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showRegister=false">取消</el-button>
+        <el-button type="primary" @click="doRegister" :loading="regLoading">注册并创建店铺</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -24,12 +55,30 @@ import {reactive, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import {Lock, User} from '@element-plus/icons-vue'
-import {loginAPI} from '../api'
+import {loginAPI, registerAPI} from '../api'
 
 const router = useRouter()
 const formRef = ref(null)
 const loading = ref(false)
 const form = reactive({username: 'admin', password: '123456'})
+
+// 注册
+const showRegister = ref(false)
+const regLoading = ref(false)
+const regForm = reactive({ username: '', password: '', name: '', phone: '', shopName: '', typeId: null, area: '', address: '', shopPhone: '', openHours: '', description: '' })
+const doRegister = async () => {
+  if (!regForm.username || !regForm.password || !regForm.shopName) {
+    ElMessage.warning('请填写用户名、密码和店铺名称')
+    return
+  }
+  regLoading.value = true
+  try {
+    const res = await registerAPI(regForm)
+    localStorage.setItem('token', res.data.token)
+    ElMessage.success('注册成功，店铺已创建！')
+    router.push('/dashboard')
+  } catch(e) {} finally { regLoading.value = false }
+}
 const rules = {
   username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
   password: [{required: true, message: '请输入密码', trigger: 'blur'}]

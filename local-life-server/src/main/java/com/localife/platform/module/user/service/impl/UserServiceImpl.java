@@ -13,11 +13,14 @@ import com.localife.platform.common.exception.BusinessException;
 import com.localife.platform.common.utils.JwtUtil;
 import com.localife.platform.module.user.dto.EmployeeDTO;
 import com.localife.platform.module.user.dto.MerchantLoginDTO;
+import com.localife.platform.module.user.dto.MerchantRegisterDTO;
 import com.localife.platform.module.user.dto.UserLoginDTO;
 import com.localife.platform.module.user.entity.User;
 import com.localife.platform.module.user.mapper.UserMapper;
 import com.localife.platform.module.user.service.UserService;
 import com.localife.platform.module.user.vo.UserVO;
+import com.localife.platform.module.shop.entity.Shop;
+import com.localife.platform.module.shop.mapper.ShopMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,6 +41,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate redisTemplate;
+    private final ShopMapper shopMapper;
 
     // ==================== 顾客登录 ====================
 
@@ -119,8 +123,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("用户名或密码错误");
         }
 
-        String token = generateToken(user);
+        // 查商家店铺
+        Shop shop = shopMapper.selectOne(
+                new LambdaQueryWrapper<Shop>().eq(Shop::getMerchantUserId, user.getId()));
+        String token = generateToken(user, shop != null ? shop.getId() : null);
         return toVO(user, token);
+    }
+
+    // ==================== 商家注册 ====================
+
+    @Override
+    @Transactional
+    public UserVO register(MerchantRegisterDTO dto) {
+        if (StrUtil.isBlank(dto.getUsername()) || StrUtil.isBlank(dto.getPassword())) {
+            throw new BusinessException("用户名和密码不能为空");
+        }
+        if (StrUtil.isBlank(dto.getShopName())) {
+            throw new BusinessException("店铺名称不能为空");
+        }
+        // 检查用户名唯一
+        Long count = lambdaQuery().eq(User::getUsername, dto.getUsername()).count();
+        if (count > 0) {
+            throw new BusinessException("用户名已存在");
+        }
+
+        // 1. 创建商家用户
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setPassword(BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt()));
+        user.setPhone(dto.getPhone());
+        user.setName(dto.getName());
+        user.setUserType(UserTypeEnum.MERCHANT.getCode());
+        user.setStatus(1);
+        user.setCreateTime(LocalDateTime.now());
+        save(user);
+
+        // 2. 创建店铺
+        Shop shop = new Shop();
+        shop.setName(dto.getShopName());
+        shop.setTypeId(dto.getTypeId());
+        shop.setMerchantUserId(user.getId());
+        shop.setArea(dto.getArea());
+        shop.setAddress(dto.getAddress());
+        shop.setPhone(dto.getShopPhone());
+        shop.setOpenHours(dto.getOpenHours());
+        shop.setDescription(dto.getDescription());
+        shop.setStatus(1);
+        shop.setCreateTime(LocalDateTime.now());
+        shopMapper.insert(shop);
+
+        String token = generateToken(user, shop.getId());
+        UserVO vo = toVO(user, token);
+        vo.setShopId(shop.getId());
+        return vo;
     }
 
     // ==================== 个人信息 ====================
@@ -155,7 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         employee.setPassword(BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt()));
         employee.setSex(dto.getSex());
         employee.setIdNumber(dto.getIdNumber());
-        employee.setUserType(UserTypeEnum.MERCHANT.getCode());
+        employee.setUserType(UserTypeEnum.EMPLOYEE.getCode());
         employee.setStatus(1);
         employee.setCreateTime(LocalDateTime.now());
         save(employee);
@@ -193,7 +248,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Page<User> pageEmployees(int page, int size, String name) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<User>()
-                .eq(User::getUserType, UserTypeEnum.MERCHANT.getCode())
+                .eq(User::getUserType, UserTypeEnum.EMPLOYEE.getCode())
                 .like(StrUtil.isNotBlank(name), User::getName, name)
                 .orderByDesc(User::getCreateTime);
         return page(new Page<>(page, size), wrapper);
@@ -202,11 +257,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     // ==================== 私有方法 ====================
 
     private String generateToken(User user) {
+        return generateToken(user, null);
+    }
+
+    private String generateToken(User user, Long shopId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.USER_ID, user.getId());
         claims.put(JwtClaimsConstant.PHONE, user.getPhone());
         claims.put(JwtClaimsConstant.USER_TYPE, user.getUserType());
         claims.put(JwtClaimsConstant.USERNAME, user.getUsername());
+        if (shopId != null) claims.put(JwtClaimsConstant.SHOP_ID, shopId);
         return jwtUtil.createToken(claims, user.getId());
     }
 

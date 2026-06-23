@@ -1,30 +1,36 @@
 package com.localife.platform.common.exception;
 
 import com.localife.platform.common.result.Result;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * 全局异常处理器
+ * 全局异常处理器 — HTTP 状态码映射
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleBusinessException(BusinessException e) {
+    public Result<Void> handleBusinessException(BusinessException e, HttpServletResponse response) {
         log.warn("业务异常: {}", e.getMessage());
+        // 根据 code 映射 HTTP 状态码
+        int status = switch (e.getCode() != null ? e.getCode() : 0) {
+            case 401 -> 401;
+            case 403 -> 403;
+            case 404 -> 404;
+            default -> 400;
+        };
+        response.setStatus(status);
         return Result.error(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result<Void> handleRuntimeException(RuntimeException e) {
+    public Result<Void> handleRuntimeException(RuntimeException e, HttpServletResponse response) {
         log.error("系统异常: ", e);
+        response.setStatus(500);
         return Result.error(500, "服务器内部错误");
     }
 }

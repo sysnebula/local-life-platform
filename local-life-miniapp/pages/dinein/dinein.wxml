@@ -1,0 +1,29 @@
+<view class="page">
+  <!-- 秒杀专区 -->
+  <view class="sk-sec">
+    <text class="sk-title">⚡ 限时秒杀</text>
+    <scroll-view scroll-x class="sk-scroll" enhanced show-scrollbar="{{false}}">
+      <view class="sk-card" wx:for="{{seckills}}" wx:key="id" bindtap="goSeckill" data-shopid="{{item.shopId||1}}">
+        <text class="sk-name">{{item.name}}</text>
+        <text class="sk-price">¥{{item.price}}<text class="sk-orig">¥{{item.orig}}</text></text>
+        <text class="sk-title" style="font-size:12px">{{item.title}}</text>
+        <view class="sk-info"><text>已抢{{item.sold}} · 剩{{item.stock}}</text></view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 团购商家 -->
+  <view class="shop-g" wx:for="{{shops}}" wx:key="id" bindtap="goShop" data-id="{{item.id}}">
+    <view class="sg-img"><text style="font-size:36px">{{item.icon}}</text></view>
+    <view class="sg-info">
+      <view class="sg-nr">
+        <text class="sg-name">{{item.name}}</text>
+        <text class="sg-tag hot" wx:if="{{item.isHot}}">人气</text>
+        <text class="sg-tag book" wx:if="{{item.canBook}}">可预约</text>
+      </view>
+      <view class="sg-meta"><text class="sg-score">⭐{{item.score}}分</text><text class="sg-avg">{{item.avgPrice}}/人</text></view>
+      <view class="sg-loc">{{item.distance}} · {{item.area}}</view>
+      <view class="sg-meal"><text class="sg-mn">{{item.meal}}</text><text class="sg-ms">已售{{item.mealSold}}+</text></view>
+    </view>
+  </view>
+</view>

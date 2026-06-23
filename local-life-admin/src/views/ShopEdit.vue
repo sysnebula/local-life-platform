@@ -14,7 +14,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="人均消费(分)">
+          <el-form-item label="人均消费(元)">
             <el-input-number v-model="form.avgPrice" :min="0"/>
           </el-form-item>
         </el-col>
@@ -26,12 +26,12 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="配送费(分)">
+          <el-form-item label="配送费(元)">
             <el-input-number v-model="form.deliveryFee" :min="0"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="起送价(分)">
+          <el-form-item label="起送价(元)">
             <el-input-number v-model="form.minOrder" :min="0"/>
           </el-form-item>
         </el-col>
@@ -94,7 +94,13 @@ onMounted(async () => {
   loading.value = true
   try {
     const res = await getMyShopAPI(shopStore.shopId)
-    if (res.data) Object.assign(form, res.data)
+    if (res.data) {
+      Object.assign(form, res.data)
+      // 分 → 元
+      form.avgPrice = (form.avgPrice / 100).toFixed(2)
+      form.deliveryFee = (form.deliveryFee / 100).toFixed(2)
+      form.minOrder = (form.minOrder / 100).toFixed(2)
+    }
   } catch (e) {
   } finally {
     loading.value = false
@@ -104,7 +110,12 @@ onMounted(async () => {
 const saveShop = async () => {
   saving.value = true
   try {
-    await updateShopAPI(form);
+    await updateShopAPI({
+      ...form,
+      avgPrice: Math.round(form.avgPrice * 100),
+      deliveryFee: Math.round(form.deliveryFee * 100),
+      minOrder: Math.round(form.minOrder * 100)
+    });
     ElMessage.success('保存成功')
   } catch (e) {
   } finally {

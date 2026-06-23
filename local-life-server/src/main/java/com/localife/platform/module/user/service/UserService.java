@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.localife.platform.module.user.dto.EmployeeDTO;
 import com.localife.platform.module.user.dto.MerchantLoginDTO;
+import com.localife.platform.module.user.dto.MerchantRegisterDTO;
 import com.localife.platform.module.user.dto.UserLoginDTO;
 import com.localife.platform.module.user.entity.User;
 import com.localife.platform.module.user.vo.UserVO;
@@ -22,6 +23,11 @@ public interface UserService extends IService<User> {
      * 商家 — 用户名+密码登录
      */
     UserVO loginByPassword(MerchantLoginDTO dto);
+
+    /**
+     * 商家注册（同时创建用户和店铺）
+     */
+    UserVO register(MerchantRegisterDTO dto);
 
     /**
      * 获取当前登录用户信息

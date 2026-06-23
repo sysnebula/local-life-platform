@@ -41,6 +41,7 @@ Page({
         this.setData({ codeBtnText: t + 's' })
       }
     }, 1000)
+    this._codeTimer = timer
   },
 
   // 登录
@@ -83,5 +84,9 @@ Page({
 
   goOrders() { wx.switchTab({ url: '/pages/orders/orders' }) },
   goAddress() { wx.navigateTo({ url: '/pages/address/address' }) },
-  goExplore() { wx.navigateTo({ url: '/pages/explore/explore' }) }
+  goExplore() { wx.navigateTo({ url: '/pages/explore/explore' }) },
+
+  onUnload() {
+    if (this._codeTimer) { clearInterval(this._codeTimer) }
+  }
 })

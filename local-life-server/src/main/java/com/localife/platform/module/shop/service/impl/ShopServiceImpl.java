@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.localife.platform.common.constant.RedisConstants;
+import com.localife.platform.common.context.UserContext;
 import com.localife.platform.common.exception.BusinessException;
 import com.localife.platform.module.shop.entity.Shop;
 import com.localife.platform.module.shop.entity.ShopType;
@@ -82,6 +83,11 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     @Override
     @Transactional
     public void updateShop(Shop shop) {
+        // 店铺归属校验：只有自己的店铺才能编辑
+        Long myShopId = UserContext.getShopId();
+        if (myShopId != null && !myShopId.equals(shop.getId())) {
+            throw new BusinessException(403, "无权操作此店铺");
+        }
         shop.setUpdateTime(LocalDateTime.now());
         updateById(shop);
         // 删除缓存，下次查询时重建

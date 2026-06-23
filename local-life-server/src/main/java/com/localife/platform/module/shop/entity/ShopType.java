@@ -15,6 +15,5 @@ public class ShopType {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String name;
-    private String icon;
     private Integer sort;
 }

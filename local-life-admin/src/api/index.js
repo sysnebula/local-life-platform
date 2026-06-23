@@ -28,6 +28,7 @@ export default http
 
 // ===== 用户 =====
 export const loginAPI = (data) => http.post('/merchant/login', data)
+export const registerAPI = (data) => http.post('/merchant/register', data)
 export const getMeAPI = () => http.get('/merchant/me')
 export const getEmployeesAPI = (params) => http.get('/merchant/employees', {params})
 export const addEmployeeAPI = (data) => http.post('/merchant/employee', data)
