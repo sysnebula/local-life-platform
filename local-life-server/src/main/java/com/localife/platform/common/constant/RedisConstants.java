@@ -8,7 +8,6 @@ public final class RedisConstants {
     /** 店铺缓存 */
     public static final String SHOP_CACHE_KEY = "shop:cache:";
     /** 店铺GEO */
-    public static final String SHOP_GEO_KEY = "shop:geo";
     /** 秒杀券库存 */
     public static final String SECKILL_STOCK_KEY = "voucher:stock:";
     /** 秒杀一人一单防重 */

@@ -60,7 +60,6 @@ public class User {
     /**
      * 身份证号（店员用）
      */
-    private String idNumber;
 
     /**
      * 用户类型: 0=顾客, 1=商家

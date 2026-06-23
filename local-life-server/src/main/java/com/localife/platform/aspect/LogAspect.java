@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Arrays;
-
 /**
  * AOP 操作日志 — 记录每个接口的调用者、路径、入参、耗时
  */

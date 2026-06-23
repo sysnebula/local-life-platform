@@ -30,15 +30,10 @@ export default http
 export const loginAPI = (data) => http.post('/merchant/login', data)
 export const registerAPI = (data) => http.post('/merchant/register', data)
 export const getMeAPI = () => http.get('/merchant/me')
-export const getEmployeesAPI = (params) => http.get('/merchant/employees', {params})
-export const addEmployeeAPI = (data) => http.post('/merchant/employee', data)
-export const updateEmployeeAPI = (id, data) => http.put(`/merchant/employee/${id}`, data)
-export const toggleEmployeeAPI = (id) => http.put(`/merchant/employee/${id}/status`)
 
 // ===== 店铺 =====
 export const getMyShopAPI = () => http.get('/merchant/shop/my')
 export const updateShopAPI = (data) => http.put('/merchant/shop', data)
-export const toggleShopAPI = (id) => http.put(`/merchant/shop/${id}/status`)
 
 // ===== 分类 =====
 export const getCategoriesAPI = (params) => http.get('/merchant/takeout/category', {params})
