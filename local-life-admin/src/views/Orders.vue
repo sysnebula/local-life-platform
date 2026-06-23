@@ -10,8 +10,8 @@
         <el-radio-button :value="4">已取消</el-radio-button>
       </el-radio-group>
     </div>
-    <el-table :data="tableData" stripe v-loading="loading">
-      <el-table-column prop="orderNumber" label="订单号" width="170"/>
+    <el-table :data="tableData" stripe v-loading="loading" size="default" highlight-current-row @row-click="showDetail(row.id)">
+      <el-table-column prop="orderNumber" label="订单号" width="180"/>
       <el-table-column label="金额" width="100">
         <template #default="{row}">¥{{ (row.amount / 100).toFixed(2) }}</template>
       </el-table-column>

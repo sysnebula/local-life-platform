@@ -2,7 +2,6 @@ package com.localife.platform.module.shop.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.localife.platform.common.result.Result;
-import com.localife.platform.module.shop.dto.NearbyShopDTO;
 import com.localife.platform.module.shop.entity.Shop;
 import com.localife.platform.module.shop.entity.ShopType;
 import com.localife.platform.module.shop.service.ShopService;
@@ -35,13 +34,6 @@ public class CustomerShopController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return Result.success(shopService.pageByType(typeId, page, size));
-    }
-
-    @Operation(summary = "附近店铺搜索（Redis GEO）")
-    @PostMapping("/nearby")
-    public Result<List<Shop>> nearby(@RequestBody NearbyShopDTO dto) {
-        return Result.success(shopService.queryNearby(
-                dto.getLongitude(), dto.getLatitude(), dto.getRadius()));
     }
 
     @Operation(summary = "获取所有店铺类型")

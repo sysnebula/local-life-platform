@@ -1,36 +1,35 @@
 <view class="page">
   <!-- 顶部搜索 -->
-  <view class="header">
-    <view class="header-top"><text class="city">📍 北京市朝阳区</text></view>
-    <view class="search-bar"><text>🔍</text><input placeholder="搜索店铺、菜品、团购套餐..." /></view>
+  <view class="top-bar">
+    <text class="top-city">📍 北京市</text>
+    <view class="top-search">
+      <text class="icon">🔍</text><input placeholder="搜索店铺、菜品、团购套餐..." />
+    </view>
   </view>
 
-  <!-- 两大场景入口 并列 -->
+  <!-- 两大场景入口 -->
   <view class="scene-row">
-    <view class="scene-card delivery" bindtap="goDelivery">
+    <view class="scene-card" bindtap="goDelivery">
       <view class="scene-icon">🛵</view>
       <text class="scene-title">外卖配送</text>
-      <text class="scene-desc">点餐即送 · 30分钟到家</text>
+      <text class="scene-desc">点餐即送</text>
     </view>
-    <view class="scene-card dinein" bindtap="goDinein">
+    <view class="scene-card" bindtap="goDinein">
       <view class="scene-icon">🍽️</view>
       <text class="scene-title">到店团购</text>
-      <text class="scene-desc">超值秒杀 · 到店核销</text>
+      <text class="scene-desc">超值秒杀</text>
     </view>
   </view>
 
   <!-- 团购秒杀 -->
   <view class="sec">
-    <view class="sec-title">⚡ 团购秒杀<text class="sec-sub">到店可享·限量开抢</text><text class="sec-more" bindtap="goAllSeckill">更多 ›</text></view>
-    <scroll-view scroll-x class="seckill-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="sec-title">⚡ 团购秒杀<text class="sec-sub">到店可享</text><text class="sec-more" bindtap="goAllSeckill">更多 ›</text></view>
+    <scroll-view scroll-x class="sk-scroll" enhanced show-scrollbar="{{false}}">
       <view class="sk-card" wx:for="{{seckills}}" wx:key="id" bindtap="goSeckill" data-id="{{item.id}}" data-shopid="{{item.shopId}}">
         <text class="sk-shop">{{item.shopName}}</text>
         <view class="sk-price-row"><text class="sk-price">¥{{item.price}}</text><text class="sk-orig">¥{{item.orig}}</text></view>
         <text class="sk-title">{{item.title}}</text>
-        <view class="sk-bottom">
-          <text class="sk-sold">已抢{{item.sold}}份</text>
-          <text class="sk-stock">仅剩{{item.stock}}份</text>
-        </view>
+        <view class="sk-bottom"><text class="sk-sold">已抢{{item.sold}}</text><text class="sk-stock">剩{{item.stock}}</text></view>
       </view>
     </scroll-view>
   </view>
@@ -38,7 +37,6 @@
   <!-- 探店笔记 -->
   <view class="sec">
     <view class="sec-title">📝 探店笔记<text class="sec-more" bindtap="goExplore">更多 ›</text></view>
-    <!-- 发笔记入口 -->
     <view class="write-note-entry" bindtap="goWriteNote">
       <view class="wn-avatar">✍️</view>
       <text class="wn-text">分享你的探店体验...</text>
@@ -47,17 +45,11 @@
     <view class="note-card" wx:for="{{notes}}" wx:key="id" bindtap="goNote" data-id="{{item.id}}">
       <view class="note-hd">
         <view class="note-avatar">{{item.avatar}}</view>
-        <view class="note-user-info">
-          <text class="note-user">{{item.userName}}</text>
-          <text class="note-shop">📍 {{item.shopName}}</text>
-        </view>
+        <view class="note-user-info"><text class="note-user">{{item.userName}}</text><text class="note-shop">📍 {{item.shopName}}</text></view>
         <text class="note-time">{{item.time}}</text>
       </view>
       <text class="note-title">{{item.title}}</text>
       <text class="note-content">{{item.content}}</text>
-      <view class="note-imgs" wx:if="{{item.images.length}}">
-        <image class="note-img" wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" />
-      </view>
     </view>
   </view>
 </view>

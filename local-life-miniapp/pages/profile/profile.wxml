@@ -4,7 +4,7 @@
     <view class="profile-hd">
       <image class="avatar" src="{{user.icon||''}}" mode="aspectFill" wx:if="{{user.icon}}"></image>
       <view class="avatar" wx:else>😊</view>
-      <text class="nickname">{{user.nickName||user.name||'用户'}}</text>
+      <text class="nickname">{{user.nickName||user.name||'用户'}}<text class="edit-link" bindtap="showEdit"> ✏️</text></text>
       <text class="uid" wx:if="{{user.phone}}">{{user.phone}}</text>
       <view class="stats">
         <view class="stat"><text class="num">-</text><text class="label">笔记</text></view>
@@ -38,4 +38,19 @@
       <text class="login-hint">开发环境验证码固定为 123456</text>
     </view>
   </block>
+
+  <!-- 编辑资料弹窗 -->
+  <view wx:if="{{showEditForm}}" class="mask" bindtap="hideEdit">
+    <view class="edit-panel" catchtap>
+      <text class="ep-title">✏️ 编辑资料</text>
+      <text class="ep-label">昵称</text>
+      <input class="ep-input" value="{{editNick}}" bindinput="onNickInput" placeholder="输入昵称" />
+      <text class="ep-label">头像链接</text>
+      <input class="ep-input" value="{{editIcon}}" bindinput="onIconInput" placeholder="粘贴头像图片URL" />
+      <view class="ep-actions">
+        <button class="ep-cancel" bindtap="hideEdit">取消</button>
+        <button class="ep-save" bindtap="doEdit">保存</button>
+      </view>
+    </view>
+  </view>
 </view>

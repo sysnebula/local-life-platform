@@ -83,23 +83,16 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     @Override
     @Transactional
     public void updateShop(Shop shop) {
-        // 店铺归属校验：只有自己的店铺才能编辑
-        Long myShopId = UserContext.getShopId();
-        if (myShopId != null && !myShopId.equals(shop.getId())) {
+        // 店铺归属校验：通过数据库验证
+        Shop dbShop = getById(shop.getId());
+        if (dbShop != null && UserContext.getUserId() != null
+                && !UserContext.getUserId().equals(dbShop.getMerchantUserId())) {
             throw new BusinessException(403, "无权操作此店铺");
         }
         shop.setUpdateTime(LocalDateTime.now());
         updateById(shop);
         // 删除缓存，下次查询时重建
         redisTemplate.delete(RedisConstants.SHOP_CACHE_KEY + shop.getId());
-        // 更新 GEO
-        if (shop.getLongitude() != null && shop.getLatitude() != null) {
-            redisTemplate.opsForGeo().add(
-                    RedisConstants.SHOP_GEO_KEY,
-                    new Point(shop.getLongitude(), shop.getLatitude()),
-                    shop.getId().toString()
-            );
-        }
     }
 
     // ==================== 分页 ====================
@@ -111,41 +104,6 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
                 .eq(Shop::getStatus, 1)
                 .orderByDesc(Shop::getSold);
         return page(new Page<>(page, size), wrapper);
-    }
-
-    // ==================== GEO 附近搜索 ====================
-
-    @Override
-    public List<Shop> queryNearby(Double longitude, Double latitude, Double radius) {
-        if (longitude == null || latitude == null) {
-            throw new BusinessException("经纬度不能为空");
-        }
-        double searchRadius = (radius != null && radius > 0) ? radius : 5.0;
-
-        // GEORADIUS 搜索
-        Distance distance = new Distance(searchRadius, Metrics.KILOMETERS);
-        Circle circle = new Circle(new Point(longitude, latitude), distance);
-        RedisGeoCommands.GeoRadiusCommandArgs args = RedisGeoCommands.GeoRadiusCommandArgs
-                .newGeoRadiusArgs()
-                .includeDistance()
-                .sortAscending()
-                .limit(20);
-
-        GeoResults<RedisGeoCommands.GeoLocation<String>> results =
-                redisTemplate.opsForGeo().radius(RedisConstants.SHOP_GEO_KEY, circle, args);
-
-        List<Shop> shops = new ArrayList<>();
-        if (results != null) {
-            for (GeoResult<RedisGeoCommands.GeoLocation<String>> r : results) {
-                String shopIdStr = r.getContent().getName();
-                Shop shop = getByIdWithCache(Long.valueOf(shopIdStr));
-                if (shop != null) {
-                    shop.setDistance(r.getDistance().getValue());
-                    shops.add(shop);
-                }
-            }
-        }
-        return shops;
     }
 
     // ==================== 店铺类型 ====================
@@ -170,5 +128,10 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
             // 空值缓存 120 秒，防止缓存穿透
             redisTemplate.opsForValue().set(key, "{}", RedisConstants.CACHE_NULL_TTL, TimeUnit.SECONDS);
         }
+    }
+
+    @Override
+    public Shop getByMerchantUserId(Long userId) {
+        return getOne(new LambdaQueryWrapper<Shop>().eq(Shop::getMerchantUserId, userId));
     }
 }

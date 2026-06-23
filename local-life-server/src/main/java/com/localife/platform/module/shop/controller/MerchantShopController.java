@@ -1,5 +1,6 @@
 package com.localife.platform.module.shop.controller;
 
+import com.localife.platform.common.context.UserContext;
 import com.localife.platform.common.result.Result;
 import com.localife.platform.module.shop.entity.Shop;
 import com.localife.platform.module.shop.service.ShopService;
@@ -23,10 +24,10 @@ public class MerchantShopController {
         return Result.success();
     }
 
-    @Operation(summary = "获取我的店铺详情")
+    @Operation(summary = "获取当前登录商家的店铺")
     @GetMapping("/my")
-    public Result<Shop> myShop(@RequestParam Long shopId) {
-        Shop shop = shopService.getByIdWithCache(shopId);
+    public Result<Shop> myShop() {
+        Shop shop = shopService.getByMerchantUserId(UserContext.getUserId());
         return shop != null ? Result.success(shop) : Result.error("店铺不存在");
     }
 

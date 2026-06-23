@@ -12,7 +12,7 @@ USE local_life;
 CREATE TABLE IF NOT EXISTS tb_user
 (
     id          BIGINT PRIMARY KEY,
-    phone       VARCHAR(11) UNIQUE COMMENT '手机号',
+    phone       VARCHAR(11) COMMENT '手机号',
     openid      VARCHAR(45) UNIQUE COMMENT '微信openid',
     username    VARCHAR(32) UNIQUE COMMENT '商家登录用户名',
     password    VARCHAR(128) COMMENT 'BCrypt密码',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS tb_user
     status      TINYINT NOT NULL DEFAULT 1 COMMENT '0=禁用 1=启用',
     create_time DATETIME         DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_phone (phone),
+    UNIQUE INDEX idx_phone_type (phone, user_type),
     INDEX idx_openid (openid),
     INDEX idx_user_type (user_type)
 ) ENGINE = InnoDB
@@ -41,8 +41,6 @@ CREATE TABLE IF NOT EXISTS tb_shop
     images           VARCHAR(2048) COMMENT '图片URL列表',
     area             VARCHAR(32) COMMENT '区域',
     address          VARCHAR(255) COMMENT '详细地址',
-    longitude        DOUBLE COMMENT '经度(GEO)',
-    latitude         DOUBLE COMMENT '纬度(GEO)',
     avg_price        INT COMMENT '人均(分)',
     sold             INT           DEFAULT 0 COMMENT '总销量',
     score            DECIMAL(2, 1) DEFAULT 0 COMMENT '评分0-5',

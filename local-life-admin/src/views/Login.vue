@@ -25,20 +25,14 @@
           <el-col :span="12"><el-form-item label="用户名"><el-input v-model="regForm.username" placeholder="登录用户名" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="密码"><el-input v-model="regForm.password" type="password" placeholder="至少6位" /></el-form-item></el-col>
         </el-row>
-        <el-row :gutter="12">
-          <el-col :span="12"><el-form-item label="姓名"><el-input v-model="regForm.name" placeholder="真实姓名" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="手机号"><el-input v-model="regForm.phone" placeholder="11位手机号" /></el-form-item></el-col>
-        </el-row>
+        <el-form-item label="手机号"><el-input v-model="regForm.phone" placeholder="11位手机号，也作为店铺联系电话" /></el-form-item>
         <el-divider content-position="left">🏪 店铺信息</el-divider>
         <el-row :gutter="12">
           <el-col :span="16"><el-form-item label="店铺名称"><el-input v-model="regForm.shopName" placeholder="如：老王火锅" /></el-form-item></el-col>
           <el-col :span="8"><el-form-item label="类型"><el-select v-model="regForm.typeId" placeholder="选择"><el-option label="火锅" :value="1" /><el-option label="快餐" :value="2" /><el-option label="饮品" :value="3" /><el-option label="川菜" :value="4" /><el-option label="日料" :value="5" /><el-option label="烧烤" :value="6" /></el-select></el-form-item></el-col>
         </el-row>
         <el-form-item label="地址"><el-input v-model="regForm.address" placeholder="详细地址" /></el-form-item>
-        <el-row :gutter="12">
-          <el-col :span="12"><el-form-item label="区域"><el-input v-model="regForm.area" placeholder="如：朝阳区" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="联系电话"><el-input v-model="regForm.shopPhone" placeholder="店铺电话" /></el-form-item></el-col>
-        </el-row>
+        <el-form-item label="区域"><el-input v-model="regForm.area" placeholder="如：朝阳区" /></el-form-item>
         <el-form-item label="营业时间"><el-input v-model="regForm.openHours" placeholder="如：10:00-22:00" /></el-form-item>
         <el-form-item label="简介"><el-input v-model="regForm.description" type="textarea" :rows="2" placeholder="店铺简介..." /></el-form-item>
       </el-form>
@@ -56,16 +50,17 @@ import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import {Lock, User} from '@element-plus/icons-vue'
 import {loginAPI, registerAPI} from '../api'
+import {saveShopId} from '../store'
 
 const router = useRouter()
 const formRef = ref(null)
 const loading = ref(false)
-const form = reactive({username: 'admin', password: '123456'})
+const form = reactive({username: '', password: ''})
 
 // 注册
 const showRegister = ref(false)
 const regLoading = ref(false)
-const regForm = reactive({ username: '', password: '', name: '', phone: '', shopName: '', typeId: null, area: '', address: '', shopPhone: '', openHours: '', description: '' })
+const regForm = reactive({ username: '', password: '', phone: '', shopName: '', typeId: null, area: '', address: '', openHours: '', description: '' })
 const doRegister = async () => {
   if (!regForm.username || !regForm.password || !regForm.shopName) {
     ElMessage.warning('请填写用户名、密码和店铺名称')
@@ -73,8 +68,9 @@ const doRegister = async () => {
   }
   regLoading.value = true
   try {
-    const res = await registerAPI(regForm)
+    const res = await registerAPI({ ...regForm, shopPhone: regForm.phone })
     localStorage.setItem('token', res.data.token)
+    if (res.data.shopId) saveShopId(res.data.shopId)
     ElMessage.success('注册成功，店铺已创建！')
     router.push('/dashboard')
   } catch(e) {} finally { regLoading.value = false }
@@ -92,6 +88,7 @@ const login = async () => {
     const res = await loginAPI(form)
     localStorage.setItem('token', res.data.token)
     localStorage.setItem('user', JSON.stringify(res.data))
+    if (res.data.shopId) saveShopId(res.data.shopId)
     ElMessage.success('登录成功')
     router.push('/dashboard')
   } catch (e) {

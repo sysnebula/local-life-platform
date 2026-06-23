@@ -75,6 +75,28 @@ Page({
     }
   },
 
+  // 编辑资料
+  showEdit() {
+    this.setData({
+      showEditForm: true,
+      editNick: this.data.user.nickName || '',
+      editIcon: this.data.user.icon || ''
+    })
+  },
+  hideEdit() { this.setData({ showEditForm: false }) },
+  onNickInput(e) { this.setData({ editNick: e.detail.value }) },
+  onIconInput(e) { this.setData({ editIcon: e.detail.value }) },
+  async doEdit() {
+    try {
+      await api.updateMeAPI({ nickName: this.data.editNick, icon: this.data.editIcon })
+      const user = this.data.user
+      user.nickName = this.data.editNick
+      user.icon = this.data.editIcon
+      this.setData({ user, showEditForm: false })
+      wx.showToast({ title: '已保存', icon: 'success' })
+    } catch(e) {}
+  },
+
   // 退出
   logout() {
     wx.removeStorageSync('token')

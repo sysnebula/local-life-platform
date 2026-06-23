@@ -22,9 +22,10 @@ public class MerchantVoucherController {
     @GetMapping("/page")
     public Result<Page<Voucher>> page(
             @RequestParam(required = false) Long shopId,
+            @RequestParam(required = false) Integer type,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return Result.success(voucherService.pageVouchers(shopId, page, size));
+        return Result.success(voucherService.pageVouchers(shopId, type, page, size));
     }
 
     @Operation(summary = "创建优惠券")

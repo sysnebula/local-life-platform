@@ -1,20 +1,20 @@
 package com.localife.platform.module.user.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * 商家注册请求（同时创建用户和店铺）
- */
 @Data
 public class MerchantRegisterDTO {
 
-    // 用户信息
+    @NotBlank(message = "用户名不能为空")
     private String username;
+
+    @NotBlank(message = "密码不能为空")
     private String password;
     private String phone;
     private String name;
 
-    // 店铺信息
+    @NotBlank(message = "店铺名称不能为空")
     private String shopName;
     private Long typeId;
     private String area;

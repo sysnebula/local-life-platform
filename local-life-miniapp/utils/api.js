@@ -27,9 +27,9 @@ const request = (url, method = 'GET', data = {}) => {
 module.exports = {
     loginAPI: (data) => request('/customer/user/login', 'POST', data),
     getMeAPI: () => request('/customer/user/me'),
+    updateMeAPI: (data) => request('/customer/user/me', 'PUT', data),
     getShopDetailAPI: (id) => request('/customer/shop/' + id),
     getShopListAPI: (params) => request('/customer/shop/list', 'GET', params),
-    getNearbyShopsAPI: (data) => request('/customer/shop/nearby', 'POST', data),
     getVoucherListAPI: (shopId) => request('/customer/voucher/list/' + shopId),
     buyVoucherAPI: (id) => request('/customer/voucher/' + id, 'POST'),
     seckillAPI: (id) => request('/customer/seckill/' + id, 'POST'),
@@ -50,7 +50,7 @@ module.exports = {
     updateAddressAPI: (id, data) => request('/customer/takeout/address/' + id, 'PUT', data),
     deleteAddressAPI: (id) => request('/customer/takeout/address/' + id, 'DELETE'),
     setDefaultAddressAPI: (id) => request('/customer/takeout/address/' + id + '/default', 'PUT'),
-    getShopNotesAPI: (shopId) => request('/customer/explore/shop/' + shopId),
+    getShopNotesAPI: (shopId, params) => request('/customer/explore/shop/' + shopId, 'GET', params),
     publishNoteAPI: (data) => request('/customer/explore', 'POST', data),
     getMyNotesAPI: () => request('/customer/explore/my')
 }

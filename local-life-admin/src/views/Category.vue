@@ -78,7 +78,7 @@ const openDialog = (row) => {
 const save = async () => {
   saving.value = true
   form.type = catType.value;
-  form.shopId = 1
+  form.shopId = shopStore.shopId
   try {
     if (editId.value) {
       form.id = editId.value;

@@ -47,7 +47,7 @@ Page({
       const voucherRes = await api.getVoucherOrdersAPI({ page: 1, size: 50 })
       const voucherDone = (voucherRes.data?.records || [])
         .filter(o => o.status >= 3)
-        .map(o => ({ id: o.id, shopId: 1, shopName: '', amount: '-', type: 'voucher' }))
+        .map(o => ({ id: o.id, shopId: o.shopId || 1, shopName: '团购券订单', amount: '-', type: 'voucher' }))
       orders.push(...voucherDone)
     } catch(e) {}
 

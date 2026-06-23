@@ -25,12 +25,10 @@ public interface ShopService extends IService<Shop> {
     Page<Shop> pageByType(Long typeId, int page, int size);
 
     /**
-     * 附近店铺搜索（Redis GEO）
-     */
-    List<Shop> queryNearby(Double longitude, Double latitude, Double radius);
-
-    /**
      * 查询所有店铺类型
      */
     List<ShopType> listTypes();
+
+    /** 根据商家用户ID查询所属店铺 */
+    Shop getByMerchantUserId(Long userId);
 }

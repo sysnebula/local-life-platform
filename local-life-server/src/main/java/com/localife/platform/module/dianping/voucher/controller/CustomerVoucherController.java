@@ -24,7 +24,7 @@ public class CustomerVoucherController {
     public Result<Page<Voucher>> list(@PathVariable Long shopId,
                                       @RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "10") int size) {
-        return Result.success(voucherService.pageVouchers(shopId, page, size));
+        return Result.success(voucherService.pageVouchers(shopId, null, page, size));
     }
 
     @Operation(summary = "购买普通优惠券")

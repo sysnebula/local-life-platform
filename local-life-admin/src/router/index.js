@@ -18,7 +18,6 @@ const routes = [
                 component: () => import('../views/Dashboard.vue'),
                 meta: {title: '工作台'}
             },
-            {path: 'staff', name: 'Staff', component: () => import('../views/Staff.vue'), meta: {title: '店员管理'}},
             {
                 path: 'shop',
                 name: 'ShopEdit',

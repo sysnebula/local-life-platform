@@ -11,7 +11,6 @@ import com.localife.platform.common.constant.RedisConstants;
 import com.localife.platform.common.constant.UserTypeEnum;
 import com.localife.platform.common.exception.BusinessException;
 import com.localife.platform.common.utils.JwtUtil;
-import com.localife.platform.module.user.dto.EmployeeDTO;
 import com.localife.platform.module.user.dto.MerchantLoginDTO;
 import com.localife.platform.module.user.dto.MerchantRegisterDTO;
 import com.localife.platform.module.user.dto.UserLoginDTO;
@@ -127,7 +126,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Shop shop = shopMapper.selectOne(
                 new LambdaQueryWrapper<Shop>().eq(Shop::getMerchantUserId, user.getId()));
         String token = generateToken(user, shop != null ? shop.getId() : null);
-        return toVO(user, token);
+        UserVO vo = toVO(user, token);
+        if (shop != null) vo.setShopId(shop.getId());
+        return vo;
     }
 
     // ==================== 商家注册 ====================
@@ -142,9 +143,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("店铺名称不能为空");
         }
         // 检查用户名唯一
-        Long count = lambdaQuery().eq(User::getUsername, dto.getUsername()).count();
-        if (count > 0) {
+        if (lambdaQuery().eq(User::getUsername, dto.getUsername()).count() > 0) {
             throw new BusinessException("用户名已存在");
+        }
+        // 检查手机号唯一
+        if (StrUtil.isNotBlank(dto.getPhone())
+                && lambdaQuery().eq(User::getPhone, dto.getPhone()).count() > 0) {
+            throw new BusinessException("该手机号已被注册");
         }
 
         // 1. 创建商家用户
@@ -189,69 +194,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return toVO(user, null);
     }
 
-    // ==================== 店员管理 ====================
-
     @Override
     @Transactional
-    public void addEmployee(EmployeeDTO dto) {
-        if (StrUtil.isBlank(dto.getUsername()) || StrUtil.isBlank(dto.getPassword())) {
-            throw new BusinessException("用户名和密码不能为空");
-        }
-        // 检查用户名唯一
-        Long count = lambdaQuery().eq(User::getUsername, dto.getUsername()).count();
-        if (count > 0) {
-            throw new BusinessException("用户名已存在");
-        }
-
-        User employee = new User();
-        employee.setName(dto.getName());
-        employee.setPhone(dto.getPhone());
-        employee.setUsername(dto.getUsername());
-        employee.setPassword(BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt()));
-        employee.setSex(dto.getSex());
-        employee.setIdNumber(dto.getIdNumber());
-        employee.setUserType(UserTypeEnum.EMPLOYEE.getCode());
-        employee.setStatus(1);
-        employee.setCreateTime(LocalDateTime.now());
-        save(employee);
-    }
-
-    @Override
-    @Transactional
-    public void updateEmployee(Long id, EmployeeDTO dto) {
-        User employee = getById(id);
-        if (employee == null) {
-            throw new BusinessException("店员不存在");
-        }
-        employee.setName(dto.getName());
-        employee.setPhone(dto.getPhone());
-        employee.setUsername(dto.getUsername());
-        if (StrUtil.isNotBlank(dto.getPassword())) {
-            employee.setPassword(dto.getPassword());
-        }
-        employee.setSex(dto.getSex());
-        employee.setIdNumber(dto.getIdNumber());
-        updateById(employee);
-    }
-
-    @Override
-    @Transactional
-    public void toggleEmployeeStatus(Long id) {
-        User employee = getById(id);
-        if (employee == null) {
-            throw new BusinessException("店员不存在");
-        }
-        employee.setStatus(employee.getStatus() == 1 ? 0 : 1);
-        updateById(employee);
-    }
-
-    @Override
-    public Page<User> pageEmployees(int page, int size, String name) {
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<User>()
-                .eq(User::getUserType, UserTypeEnum.EMPLOYEE.getCode())
-                .like(StrUtil.isNotBlank(name), User::getName, name)
-                .orderByDesc(User::getCreateTime);
-        return page(new Page<>(page, size), wrapper);
+    public void updateProfile(Long userId, String nickName, String icon) {
+        User user = getById(userId);
+        if (user == null) throw new BusinessException("用户不存在");
+        if (nickName != null) user.setNickName(nickName);
+        if (icon != null) user.setIcon(icon);
+        updateById(user);
     }
 
     // ==================== 私有方法 ====================

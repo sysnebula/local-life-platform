@@ -1,9 +1,29 @@
-.hero{background:linear-gradient(135deg,#FF6B35,#F7931E);color:#fff;padding:16px}.h-name{display:block;font-size:20px;font-weight:700}.h-meta{display:block;font-size:12px;opacity:.9;margin-top:2px}
-.tabs{display:flex;background:#fff;border-bottom:1px solid #eee}.tab{flex:1;text-align:center;padding:10px;font-size:14px;color:#666}.tab.active{color:#FF6B35;border-bottom:2px solid #FF6B35;font-weight:600}
-.sec{padding:12px 14px;background:#fff;margin:6px 0}
-.v-card{display:flex;align-items:center;background:#FFF8E1;border-radius:8px;padding:12px;margin-bottom:8px;gap:10px}.v-price{font-size:26px;font-weight:700;color:#FF6B35;flex-shrink:0}.v-info{flex:1}.v-title{display:block;font-size:14px;font-weight:600}.v-desc{display:block;font-size:11px;color:#999}
-.v-btn{background:#FF6B35;color:#fff;border:none;border-radius:20px;padding:4px 14px;flex-shrink:0}.v-btn.seckill{background:#E91E63}
-.cat-title{display:inline-block;font-size:15px;font-weight:600;margin:8px 0 4px;padding-bottom:4px;border-bottom:2px solid #FF6B35}
-.dish-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5}.d-img{width:54px;height:54px;border-radius:6px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}.d-info{flex:1}.d-name{display:block;font-size:13px}.d-price{display:block;font-size:15px;font-weight:600;color:#FF6B35}
-.add-btn{width:24px;height:24px;border-radius:50%;background:#FF6B35;color:#fff;border:none;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:24px}
-.note{border-bottom:1px solid #f0f0f0;padding:10px 0}.note-hd{display:flex;gap:8px;margin-bottom:4px}.note-user{font-size:13px;font-weight:500}.note-time{font-size:11px;color:#ccc}.note-content{font-size:13px;color:#555;line-height:1.6}
+/* 店铺头部 — 白底简洁 */
+.hero{background:#fff;padding:16px;border-bottom:1px solid #f0f0f0}
+.h-name{display:block;font-size:20px;font-weight:700;color:#222}
+.h-meta{display:block;font-size:12px;color:#999;margin-top:2px}
+
+/* Tab */
+.tabs{display:flex;background:#fff;border-bottom:1px solid #f0f0f0}
+.tab{flex:1;text-align:center;padding:12px;font-size:14px;color:#999}
+.tab.active{color:#E8702A;border-bottom:2px solid #E8702A;font-weight:600}
+
+/* 区块 */
+.sec{padding:12px 16px;background:#fff;margin:8px 0;border-radius:0}
+
+/* 团购券 */
+.v-card{display:flex;align-items:center;background:#FFF9F5;border-radius:10px;padding:14px;margin-bottom:10px;gap:12px;border:1px solid #FFF0E5}
+.v-price{font-size:28px;font-weight:700;color:#E8702A;flex-shrink:0}.v-info{flex:1}.v-title{display:block;font-size:14px;font-weight:600;color:#333}.v-desc{display:block;font-size:11px;color:#999;margin-top:2px}
+.v-btn{background:#E8702A;color:#fff;border:none;border-radius:18px;padding:5px 16px;font-size:12px;flex-shrink:0}
+.v-btn.seckill{background:#E91E63}
+
+/* 菜品分类 */
+.cat-title{display:inline-block;font-size:15px;font-weight:600;color:#333;margin:10px 0 6px;padding-bottom:4px;border-bottom:2px solid #E8702A}
+.dish-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5}.dish-item:last-child{border-bottom:none}
+.d-img{width:54px;height:54px;border-radius:8px;background:#FFF3EB;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.d-info{flex:1}.d-name{display:block;font-size:14px;color:#333}.d-price{display:block;font-size:16px;font-weight:600;color:#E8702A}
+.add-btn{width:26px;height:26px;border-radius:50%;background:#E8702A;color:#fff;border:none;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:26px}
+
+/* 笔记 */
+.note{border-bottom:1px solid #f0f0f0;padding:12px 0}.note:last-child{border-bottom:none}
+.note-hd{display:flex;gap:8px;margin-bottom:4px}.note-user{font-size:13px;font-weight:500;color:#333}.note-time{font-size:11px;color:#ccc}.note-content{font-size:13px;color:#666;line-height:1.6}

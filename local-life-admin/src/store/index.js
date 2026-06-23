@@ -1,15 +1,12 @@
 import { reactive } from 'vue'
 
-// 商家店铺信息（登录后由 Layout 初始化）
+// 注意：Snowflake ID 超过 JS Number 精度，必须用字符串存储
 export const shopStore = reactive({
-  shopId: null,
+  shopId: localStorage.getItem('shopId') || null,
   shopName: ''
 })
 
-export function setShopId(id) { shopStore.shopId = id }
-export function setShopName(name) { shopStore.shopName = name }
-
-// 默认 shopId（从 localStorage 恢复，否则默认 1；后续从 /merchant/me 接口获取后覆盖）
-if (!shopStore.shopId) {
-  shopStore.shopId = Number(localStorage.getItem('shopId')) || 1
+export function saveShopId(id) {
+  localStorage.setItem('shopId', String(id))
+  shopStore.shopId = String(id)
 }

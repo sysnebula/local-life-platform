@@ -31,7 +31,7 @@ public interface VoucherService extends IService<Voucher> {
     /**
      * 分页查询优惠券
      */
-    Page<Voucher> pageVouchers(Long shopId, int page, int size);
+    Page<Voucher> pageVouchers(Long shopId, Integer type, int page, int size);
 
     /**
      * 查询用户券订单

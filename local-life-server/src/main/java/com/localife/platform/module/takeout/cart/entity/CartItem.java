@@ -9,6 +9,7 @@ import java.io.Serializable;
  */
 @Data
 public class CartItem implements Serializable {
+    private Long shopId;   // 店铺ID，用于多店铺购物车分组
     private Long dishId;
     private Long setmealId;
     private String name;

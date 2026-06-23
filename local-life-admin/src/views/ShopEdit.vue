@@ -38,16 +38,6 @@
       </el-row>
       <el-row :gutter="16">
         <el-col :span="8">
-          <el-form-item label="经度(GEO)">
-            <el-input v-model="form.longitude"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="纬度(GEO)">
-            <el-input v-model="form.latitude"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
           <el-form-item label="状态">
             <el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="营业"
                        inactive-text="休息"/>
@@ -71,7 +61,6 @@
 import {onMounted, reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import {getMyShopAPI, updateShopAPI} from '../api'
-import {shopStore} from '../store'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -83,8 +72,6 @@ const form = reactive({
   openHours: '',
   deliveryFee: 0,
   minOrder: 0,
-  longitude: 0,
-  latitude: 0,
   status: 1,
   address: '',
   description: ''
@@ -93,7 +80,7 @@ const form = reactive({
 onMounted(async () => {
   loading.value = true
   try {
-    const res = await getMyShopAPI(shopStore.shopId)
+    const res = await getMyShopAPI()
     if (res.data) {
       Object.assign(form, res.data)
       // 分 → 元

@@ -207,9 +207,10 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
     }
 
     @Override
-    public Page<Voucher> pageVouchers(Long shopId, int page, int size) {
+    public Page<Voucher> pageVouchers(Long shopId, Integer type, int page, int size) {
         LambdaQueryWrapper<Voucher> wrapper = new LambdaQueryWrapper<Voucher>()
                 .eq(shopId != null, Voucher::getShopId, shopId)
+                .eq(type != null, Voucher::getType, type)
                 .orderByDesc(Voucher::getCreateTime);
         return page(new Page<>(page, size), wrapper);
     }

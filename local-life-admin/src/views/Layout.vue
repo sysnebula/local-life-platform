@@ -3,18 +3,12 @@
     <el-aside width="220px">
       <div class="logo">🏪 本地生活·商家</div>
       <el-menu :default-active="route.path" router background-color="#1a1a2e" text-color="#ccc"
-               active-text-color="#FF6B35">
+               active-text-color="#409EFF">
         <el-menu-item index="/dashboard">
           <el-icon>
             <DataAnalysis/>
           </el-icon>
           工作台
-        </el-menu-item>
-        <el-menu-item index="/staff">
-          <el-icon>
-            <UserFilled/>
-          </el-icon>
-          店员管理
         </el-menu-item>
         <el-menu-item index="/shop">
           <el-icon>

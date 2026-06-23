@@ -6,9 +6,12 @@ import com.localife.platform.module.user.dto.UserLoginDTO;
 import com.localife.platform.module.user.service.UserService;
 import com.localife.platform.module.user.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * 用户端 — 顾客接口
@@ -23,7 +26,7 @@ public class CustomerUserController {
 
     @Operation(summary = "手机号+验证码登录")
     @PostMapping("/login")
-    public Result<UserVO> login(@RequestBody UserLoginDTO dto) {
+    public Result<UserVO> login(@Valid @RequestBody UserLoginDTO dto) {
         return Result.success(userService.loginByPhone(dto));
     }
 
@@ -31,5 +34,13 @@ public class CustomerUserController {
     @GetMapping("/me")
     public Result<UserVO> me() {
         return Result.success(userService.getCurrentUser(UserContext.getUserId()));
+    }
+
+    @Operation(summary = "更新个人信息（昵称/头像）")
+    @PutMapping("/me")
+    public Result<Void> updateMe(@RequestBody Map<String, String> body) {
+        userService.updateProfile(UserContext.getUserId(),
+                body.get("nickName"), body.get("icon"));
+        return Result.success();
     }
 }

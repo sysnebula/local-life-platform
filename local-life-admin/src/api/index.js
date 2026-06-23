@@ -36,7 +36,7 @@ export const updateEmployeeAPI = (id, data) => http.put(`/merchant/employee/${id
 export const toggleEmployeeAPI = (id) => http.put(`/merchant/employee/${id}/status`)
 
 // ===== 店铺 =====
-export const getMyShopAPI = (shopId) => http.get('/merchant/shop/my', {params: {shopId}})
+export const getMyShopAPI = () => http.get('/merchant/shop/my')
 export const updateShopAPI = (data) => http.put('/merchant/shop', data)
 export const toggleShopAPI = (id) => http.put(`/merchant/shop/${id}/status`)
 
