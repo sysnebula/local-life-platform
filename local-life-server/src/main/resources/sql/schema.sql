@@ -195,7 +195,6 @@ CREATE TABLE IF NOT EXISTS tb_takeout_order
     order_number    VARCHAR(64) NOT NULL UNIQUE,
     user_id         BIGINT      NOT NULL,
     shop_id         BIGINT      NOT NULL,
-    address_book_id BIGINT,
     status          TINYINT DEFAULT 0 COMMENT '0=待接单 1=已接单 2=配送中 3=已完成 4=已取消',
     amount          INT         NOT NULL COMMENT '金额(分)',
     remark          VARCHAR(256),
@@ -224,23 +223,6 @@ CREATE TABLE IF NOT EXISTS tb_order_detail
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='订单明细';
 
--- 地址簿表
-CREATE TABLE IF NOT EXISTS tb_address_book
-(
-    id         BIGINT PRIMARY KEY,
-    user_id    BIGINT      NOT NULL,
-    consignee  VARCHAR(32) NOT NULL COMMENT '收货人',
-    sex        TINYINT,
-    phone      VARCHAR(11) NOT NULL,
-    province   VARCHAR(32),
-    city       VARCHAR(32),
-    district   VARCHAR(32),
-    detail     VARCHAR(256) COMMENT '详细地址',
-    label      VARCHAR(32) COMMENT '家/公司等',
-    is_default TINYINT DEFAULT 0,
-    INDEX idx_user (user_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='地址簿';
 
 -- 探店笔记表（关联订单 — 只有消费过才能写笔记）
 CREATE TABLE IF NOT EXISTS tb_explore_note

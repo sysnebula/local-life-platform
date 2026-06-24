@@ -3,9 +3,7 @@ const api = require('../../utils/api')
 Page({
   data: { shops: [] },
 
-  onShow() {
-    this.loadShops()
-  },
+  onShow() { this.loadShops() },
 
   async loadShops() {
     try {
@@ -19,13 +17,12 @@ Page({
         monthSold: (s.sold || 0) > 1000 ? Math.floor(s.sold/1000)+'k' : (s.sold || '-'),
         minOrder: '¥' + ((s.minOrder||0)/100).toFixed(0),
         deliveryFee: '¥' + ((s.deliveryFee||0)/100).toFixed(0),
-        time: '30分钟',
-        activities: []
+        time: '30分钟'
       })) })
     } catch(e) {}
   },
 
   goShop(e) {
-    wx.navigateTo({ url: '/pages/shop-detail/shop-detail?id=' + e.currentTarget.dataset.id })
+    wx.navigateTo({ url: '/pages/shop-detail/shop-detail?id=' + e.currentTarget.dataset.id + '&tab=1' })
   }
 })

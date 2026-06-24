@@ -10,8 +10,8 @@
     <view class="o-items"><view class="o-item" wx:for="{{item.items}}" wx:key="name" wx:for-item="oi"><text>{{oi.name}} ×{{oi.number}}</text><text>¥{{oi.price}}</text></view></view>
     <view class="o-total"><text>实付：</text><text class="total-price">¥{{item.amount}}</text></view>
     <view class="o-actions">
-      <button wx:if="{{item.status<=1}}" class="btn danger" bindtap="cancel" data-id="{{item.id}}">取消订单</button>
-      <button wx:if="{{item.status===1}}" class="btn primary" bindtap="remind">催单</button>
+      <button wx:if="{{item.status<=1 && item.type==='takeout'}}" class="btn danger" bindtap="cancel" data-id="{{item.id}}">取消</button>
+      <button wx:if="{{item.status<=1 && item.type==='takeout'}}" class="btn primary" bindtap="remind" data-id="{{item.id}}">催单</button>
       <button wx:if="{{item.status===3}}" class="btn" bindtap="reorder" data-items="{{item.items}}">再来一单</button>
     </view>
   </view>

@@ -14,7 +14,6 @@
     </view>
     <view class="menu">
       <view class="menu-item" bindtap="goOrders"><text class="icon">📋</text><text>我的订单</text><text class="arrow">›</text></view>
-      <view class="menu-item" bindtap="goAddress"><text class="icon">📍</text><text>收货地址</text><text class="arrow">›</text></view>
       <view class="menu-item" bindtap="goOrders"><text class="icon">🎫</text><text>我的团购券</text><text class="arrow">›</text></view>
       <view class="menu-item" bindtap="goExplore"><text class="icon">📝</text><text>我的探店笔记</text><text class="arrow">›</text></view>
     </view>

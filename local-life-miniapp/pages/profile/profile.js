@@ -105,7 +105,6 @@ Page({
   },
 
   goOrders() { wx.switchTab({ url: '/pages/orders/orders' }) },
-  goAddress() { wx.navigateTo({ url: '/pages/address/address' }) },
   goExplore() { wx.navigateTo({ url: '/pages/explore/explore' }) },
 
   onUnload() {

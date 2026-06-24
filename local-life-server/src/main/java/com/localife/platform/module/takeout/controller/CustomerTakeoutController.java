@@ -20,8 +20,6 @@ import com.localife.platform.module.takeout.setmeal.entity.Setmeal;
 import com.localife.platform.module.takeout.setmeal.entity.SetmealDish;
 import com.localife.platform.module.takeout.setmeal.mapper.SetmealDishMapper;
 import com.localife.platform.module.takeout.setmeal.mapper.SetmealMapper;
-import com.localife.platform.module.user.entity.AddressBook;
-import com.localife.platform.module.user.mapper.AddressBookMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +41,6 @@ public class CustomerTakeoutController {
     private final SetmealDishMapper setmealDishMapper;
     private final CartService cartService;
     private final OrderService orderService;
-    private final AddressBookMapper addressBookMapper;
 
     // === 分类 ===
     @Operation(summary = "获取菜品/套餐分类")
@@ -108,12 +105,10 @@ public class CustomerTakeoutController {
     @PostMapping("/order")
     public Result<Order> placeOrder(@RequestBody Map<String, Object> body) {
         Object sid = body.get("shopId");
-        Object aid = body.get("addressBookId");
-        if (sid == null || aid == null) throw new BusinessException("shopId和addressBookId不能为空");
+        if (sid == null) throw new BusinessException("shopId不能为空");
         Long shopId = Long.valueOf(sid.toString());
-        Long addressId = Long.valueOf(aid.toString());
         String remark = (String) body.getOrDefault("remark", "");
-        return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, addressId, remark));
+        return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, null, remark));
     }
 
     @Operation(summary = "我的订单")
@@ -143,51 +138,4 @@ public class CustomerTakeoutController {
     }
 
     // === 地址 ===
-    @Operation(summary = "地址列表")
-    @GetMapping("/address")
-    public Result<List<AddressBook>> addresses() {
-        return Result.success(addressBookMapper.selectList(
-                new LambdaQueryWrapper<AddressBook>().eq(AddressBook::getUserId, UserContext.getUserId())));
-    }
-
-    @Operation(summary = "新增地址")
-    @PostMapping("/address")
-    public Result<Void> addressAdd(@RequestBody AddressBook addr) {
-        addr.setUserId(UserContext.getUserId());
-        addressBookMapper.insert(addr);
-        return Result.success();
-    }
-
-    @Operation(summary = "编辑地址")
-    @PutMapping("/address/{id}")
-    public Result<Void> addressUpdate(@PathVariable Long id, @RequestBody AddressBook addr) {
-        addr.setId(id);
-        addr.setUserId(UserContext.getUserId());
-        addressBookMapper.updateById(addr);
-        return Result.success();
-    }
-
-    @Operation(summary = "删除地址")
-    @DeleteMapping("/address/{id}")
-    public Result<Void> addressDel(@PathVariable Long id) {
-        addressBookMapper.deleteById(id);
-        return Result.success();
-    }
-
-    @Operation(summary = "设为默认")
-    @PutMapping("/address/{id}/default")
-    public Result<Void> addressDefault(@PathVariable Long id) {
-        AddressBook addr = addressBookMapper.selectById(id);
-        if (addr != null) {
-            // 取消其他默认
-            addressBookMapper.selectList(
-                    new LambdaQueryWrapper<AddressBook>().eq(AddressBook::getUserId, addr.getUserId())).forEach(a -> {
-                a.setIsDefault(0);
-                addressBookMapper.updateById(a);
-            });
-            addr.setIsDefault(1);
-            addressBookMapper.updateById(addr);
-        }
-        return Result.success();
-    }
 }

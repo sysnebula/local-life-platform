@@ -22,6 +22,7 @@ Page({
       const takeoutRes = await api.getTakeoutOrdersAPI({ page: 1, size: 50 })
       const takeoutOrders = (takeoutRes.data?.records || []).map(o => ({
         ...o, type: 'takeout',
+        items: (o.items||[]).map(i => ({ ...i, price: ((i.price||0)/100).toFixed(1) })),
         statusText: ['待接单','已接单','配送中','已完成','已取消'][o.status] || '未知',
         amount: ((o.amount || 0) / 100).toFixed(2)
       }))
@@ -77,7 +78,7 @@ Page({
     }
     try {
       for (const item of items) {
-        await api.addCartAPI({ dishId: item.dishId, setmealId: item.setmealId, name: item.name, price: item.price, number: item.number || 1 })
+        await api.addCartAPI({ dishId: item.dishId, setmealId: item.setmealId, name: item.name, price: Math.round(parseFloat(item.price)*100), number: item.number || 1 })
       }
       wx.showToast({ title: '已加入购物车', icon: 'success' })
     } catch(e) {

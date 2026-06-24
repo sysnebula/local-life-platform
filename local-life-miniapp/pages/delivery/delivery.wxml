@@ -5,11 +5,9 @@
       <view class="sd-nr">
         <text class="sd-name">{{item.name}}</text>
         <text class="sd-tag brand" wx:if="{{item.isBrand}}">品牌</text>
-        <text class="sd-tag new" wx:if="{{item.isNew}}">新店</text>
       </view>
       <view class="sd-meta"><text class="sd-score">⭐{{item.score}}分</text><text class="sd-sold">月售{{item.monthSold}}+</text></view>
       <view class="sd-deliver">起送{{item.minOrder}} | 配送费{{item.deliveryFee}} | {{item.time}}</view>
-      <view><text class="sd-act" wx:for="{{item.activities}}" wx:key="*this">{{item}}</text></view>
     </view>
   </view>
 </view>

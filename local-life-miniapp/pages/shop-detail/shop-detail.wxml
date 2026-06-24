@@ -36,4 +36,35 @@
       <text class="note-content">{{item.content}}</text>
     </view>
   </view>
+
+  <!-- 外卖菜单购物车栏 -->
+  <view class="cart-bar" wx:if="{{tab===1 && cartCount>0}}" bindtap="showCartPopup">
+    <view class="cb-left">
+      <view class="cb-icon">🛒<text class="cb-badge">{{cartCount}}</text></view>
+      <text class="cb-total">¥{{cartTotal}}</text>
+    </view>
+    <view class="cb-btn">去结算</view>
+  </view>
+
+  <!-- 购物车弹窗 -->
+  <view wx:if="{{showCart}}" class="mask" bindtap="hideCartPopup">
+    <view class="cart-popup" catchtap>
+      <view class="cp-title">🛒 已选商品<text class="cp-clear" bindtap="clearCart">清空</text></view>
+      <view class="cp-list">
+        <view class="cp-item" wx:for="{{cartItems}}" wx:key="dishId">
+          <text class="cp-name">{{item.name}}</text>
+          <view class="cp-qty"><text class="cp-minus" bindtap="cartMinus" data-id="{{item.dishId}}">−</text><text class="cp-num">{{item.number}}</text><text class="cp-plus" bindtap="cartPlus" data-id="{{item.dishId}}">+</text></view>
+          <text class="cp-price">¥{{item.showPrice}}</text>
+        </view>
+      </view>
+      <view wx:if="{{!cartItems.length}}" class="cp-empty">购物车为空</view>
+      <view class="cp-bottom">
+        <text class="cp-total">合计 ¥{{cartTotal}}</text>
+        <view class="cp-actions">
+          <button class="cp-back" bindtap="hideCartPopup">继续点餐</button>
+          <button class="cp-checkout" bindtap="goCart">去结算</button>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

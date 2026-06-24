@@ -1,71 +1,66 @@
-const api = require('../../utils/api')
-
+// pages/address/address.js
 Page({
+
+  /**
+   * 页面的初始数据
+   */
   data: {
-    showForm: false, editId: null,
-    form: { consignee:'', phone:'', detail:'', label:'' },
-    addresses: []
+
   },
 
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad(options) {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady() {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
   onShow() {
-    if (!wx.getStorageSync('token')) {
-      wx.showToast({ title: '请先登录', icon: 'none' })
-      wx.switchTab({ url: '/pages/profile/profile' })
-      return
-    }
-    this.loadAddresses()
+
   },
 
-  async loadAddresses() {
-    try {
-      const res = await api.getAddressesAPI()
-      this.setData({ addresses: res.data || [] })
-    } catch(e) {}
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide() {
+
   },
 
-  editAddr(e) {
-    const id = e.currentTarget.dataset.id
-    if (id) {
-      const addr = this.data.addresses.find(a => a.id === id)
-      this.setData({ editId: id, form: { consignee: addr.consignee, phone: addr.phone, detail: addr.detail, label: addr.label || '' }, showForm: true })
-    } else {
-      this.setData({ editId: null, form: { consignee:'', phone:'', detail:'', label:'' }, showForm: true })
-    }
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload() {
+
   },
 
-  hideForm() { this.setData({ showForm: false }) },
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh() {
 
-  onField(e) {
-    this.setData({ ['form.' + e.currentTarget.dataset.field]: e.detail.value })
   },
 
-  async saveAddr() {
-    try {
-      if (this.data.editId) {
-        await api.updateAddressAPI(this.data.editId, this.data.form)
-      } else {
-        await api.addAddressAPI(this.data.form)
-      }
-      wx.showToast({ title: '保存成功', icon: 'success' })
-      this.setData({ showForm: false })
-      this.loadAddresses()
-    } catch(e) {}
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+
   },
 
-  async setDefault(e) {
-    try {
-      await api.setDefaultAddressAPI(e.currentTarget.dataset.id)
-      this.loadAddresses()
-    } catch(e) {}
-  },
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage() {
 
-  async delAddr(e) {
-    try {
-      await api.deleteAddressAPI(e.currentTarget.dataset.id)
-      wx.showToast({ title: '已删除', icon: 'none' })
-      this.loadAddresses()
-    } catch(e) {}
-  },
-
-  goBack() { wx.navigateBack() }
+  }
 })

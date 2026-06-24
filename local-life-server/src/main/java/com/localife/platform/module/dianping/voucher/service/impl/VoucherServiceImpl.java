@@ -113,8 +113,12 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
                 throw new BusinessException("已售罄");
             }
 
-            // 5. Lua 脚本原子扣 Redis 库存
+            // 5. Redis 库存不存在则从 DB 初始化
             String stockKey = RedisConstants.SECKILL_STOCK_KEY + voucherId;
+            if (Boolean.FALSE.equals(redisTemplate.hasKey(stockKey))) {
+                redisTemplate.opsForValue().set(stockKey, String.valueOf(latest.getStock()));
+            }
+            // 6. Lua 脚本原子扣库存
             Long result = redisTemplate.execute(SECKILL_SCRIPT, Collections.singletonList(stockKey));
             if (result == null || result == 0) {
                 redisTemplate.delete(orderKey);

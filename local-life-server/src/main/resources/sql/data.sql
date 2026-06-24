@@ -6,16 +6,19 @@ USE local_life;
 
 -- 店铺类型
 INSERT INTO tb_shop_type (id, name, sort) VALUES
-(1, '火锅', 1), (2, '快餐', 2), (3, '饮品甜品', 3),
-(4, '川菜湘菜', 4), (5, '日料韩餐', 5), (6, '烧烤', 6);
+(1, '火锅', 1),
+(2, '快餐', 2),
+(3, '饮品甜品', 3),
+(4, '川菜湘菜', 4),
+(5, '日料韩餐', 5),
+(6, '烧烤', 6);
 
--- 用户: 1商家 + 2顾客
+-- 用户: 1商家 + 1顾客
 INSERT INTO tb_user (id, phone, username, password, nick_name, name, sex, user_type, status, create_time) VALUES
 (1, '13800001111', 'admin', '123456', '张店长', '张建国', 1, 1, 1, NOW());
 
 INSERT INTO tb_user (id, phone, nick_name, sex, user_type, status, create_time) VALUES
-(10, '13812345678', '美食猎人', 1, 0, 1, NOW()),
-(11, '13987654321', '吃货小张', 2, 0, 1, NOW());
+(10, '13812345678', '美食猎人', 1, 0, 1, NOW());
 
 -- 店铺: 蜀九香火锅
 INSERT INTO tb_shop (id, name, type_id, merchant_user_id, area, address, avg_price, sold, score, open_hours, phone, description, delivery_fee, min_order, status, create_time) VALUES
@@ -60,10 +63,3 @@ INSERT INTO tb_voucher (id, shop_id, title, sub_title, rules, pay_value, actual_
 INSERT INTO tb_seckill_voucher (voucher_id, stock, begin_time, end_time) VALUES
 (1, 200, '2026-06-01 00:00:00', '2026-12-31 23:59:59');
 
--- 收货地址
-INSERT INTO tb_address_book (id, user_id, consignee, sex, phone, province, city, district, detail, label, is_default) VALUES
-(1, 10, '李先生', 1, '13812345678', '北京市', '朝阳区', '三里屯街道', '工体北路甲2号 3号楼1806', '家', 1);
-
--- 探店笔记
-INSERT INTO tb_explore_note (id, shop_id, user_id, order_id, order_type, title, content, status, create_time) VALUES
-(1, 1, 10, 1001, 0, '🔥 京城必打卡的重庆火锅！', '九宫格锅底真的正宗！牛油浓郁，辣度恰到好处。必点雪花肥牛和虾滑。', 1, NOW());

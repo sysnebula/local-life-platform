@@ -42,7 +42,7 @@
     <el-dialog v-model="detailVisible" title="订单详情" width="500px">
       <el-table :data="details" stripe>
         <el-table-column prop="name" label="菜品"/>
-        <el-table-column prop="price" label="单价"/>
+        <el-table-column label="单价"><template #default="{row}">¥{{ (row.price/100).toFixed(2) }}</template></el-table-column>
         <el-table-column prop="number" label="数量"/>
       </el-table>
     </el-dialog>

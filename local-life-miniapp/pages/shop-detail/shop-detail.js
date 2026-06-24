@@ -8,17 +8,27 @@ Page({
     shop: {},
     vouchers: [],
     menu: [],
-    notes: []
+    notes: [],
+    cartCount: 0,
+    cartTotal: 0,
+    cartItems: [],
+    showCart: false
+  },
+
+  onShow() {
+    this.setData({ cartCount: 0, cartTotal: 0, cartItems: [], showCart: false })
+    this.loadCartSummary()
   },
 
   onLoad(options) {
     const shopId = options.id
-    this.setData({ shopId })
+    const tab = options.tab ? parseInt(options.tab) : 0
+    this.setData({ shopId, tab })
     if (!shopId) return
-    // 加载店铺数据
     this.loadShop(shopId)
     this.loadVouchers(shopId)
     this.loadMenu(shopId)
+    if (tab === 1) this.loadCartSummary()
   },
 
   async loadShop(id) {
@@ -31,7 +41,8 @@ Page({
   async loadVouchers(shopId) {
     try {
       const res = await api.getVoucherListAPI(shopId)
-      this.setData({ vouchers: res.data?.records || [] })
+      const vouchers = (res.data?.records || []).map(v => ({ ...v, payValue: ((v.payValue||0)/100).toFixed(1) }))
+      this.setData({ vouchers })
     } catch(e) {}
   },
 
@@ -43,14 +54,64 @@ Page({
       const menu = []
       for (const c of cats) {
         const dishRes = await api.getDishesAPI(c.id)
-        menu.push({ name: c.name, dishes: dishRes.data || [] })
+        const dishes = (dishRes.data || []).map(d => ({ ...d, price: ((d.price||0)/100).toFixed(1) }))
+        menu.push({ name: c.name, dishes })
       }
       this.setData({ menu })
     } catch(e) {}
   },
 
   switchTab(e) {
-    this.setData({ tab: parseInt(e.currentTarget.dataset.idx) })
+    const tab = parseInt(e.currentTarget.dataset.idx)
+    this.setData({ tab })
+    if (tab === 1) this.loadCartSummary()
+  },
+
+  async showCartPopup() {
+    await this.loadCartSummary()
+    this.loadCartDetail()
+  },
+
+  hideCartPopup() {
+    this.setData({ showCart: false })
+  },
+
+  async loadCartSummary() {
+    try {
+      const res = await api.getCartAPI()
+      const items = res.data || []
+      let count = 0, total = 0
+      items.forEach(i => { count += i.number || 1; total += (i.price || 0) * (i.number || 1) })
+      this.setData({ cartCount: count, cartTotal: (total/100).toFixed(0) })
+    } catch(e) {}
+  },
+
+  async loadCartDetail() {
+    try {
+      const res = await api.getCartAPI()
+      const items = (res.data || []).map(i => ({ ...i, showPrice: ((i.price||0)/100).toFixed(1) }))
+      let total = 0
+      items.forEach(i => { total += (i.price || 0) * (i.number || 1) })
+      this.setData({ cartItems: items, cartCount: items.length, cartTotal: (total/100).toFixed(0), showCart: true })
+    } catch(e) {}
+  },
+
+  async cartPlus(e) {
+    const id = e.currentTarget.dataset.id
+    try { await api.updateCartAPI('dish_' + id, { number: 1 }); this.loadCartDetail() } catch(e) {}
+  },
+
+  async cartMinus(e) {
+    const id = e.currentTarget.dataset.id
+    try { await api.updateCartAPI('dish_' + id, { number: 0 }); this.loadCartDetail() } catch(e) {}
+  },
+
+  async clearCart() {
+    try { await api.clearCartAPI(); this.setData({ showCart: false, cartCount: 0, cartTotal: 0 }) } catch(e) {}
+  },
+
+  goCart() {
+    wx.navigateTo({ url: '/pages/cart/cart' })
   },
 
   buyVoucher(e) {
@@ -66,8 +127,8 @@ Page({
     if (!wx.getStorageSync('token')) { wx.switchTab({ url: '/pages/profile/profile' }); return }
     const item = e.currentTarget.dataset.item
     if (!item) return
-    api.addCartAPI({ dishId: item.id, name: item.name, price: item.price, number: 1 })
-      .then(() => wx.showToast({ title: '已加入购物车', icon: 'success' }))
+    api.addCartAPI({ shopId: this.data.shopId, dishId: item.id, name: item.name, price: Math.round(parseFloat(item.price)*100), number: 1 })
+      .then(() => { wx.showToast({ title: '已加入购物车', icon: 'success' }); this.loadCartSummary() })
       .catch(() => wx.showToast({ title: '添加失败', icon: 'none' }))
   }
 })
