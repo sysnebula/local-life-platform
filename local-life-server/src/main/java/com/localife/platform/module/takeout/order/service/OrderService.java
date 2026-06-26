@@ -35,7 +35,7 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
      * 下单
      */
     @Transactional
-    public Order placeOrder(Long userId, Long shopId, Long addressBookId, String remark) {
+    public Order placeOrder(Long userId, Long shopId, String remark) {
         List<CartItem> cartItems = cartService.list(userId);
         if (cartItems.isEmpty()) {
             throw new BusinessException("购物车为空");
@@ -48,7 +48,6 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
         order.setOrderNumber(String.valueOf(snowflake.nextId()));
         order.setUserId(userId);
         order.setShopId(shopId);
-        order.setAddressBookId(addressBookId);
         order.setStatus(OrderStatusEnum.PENDING.getCode());
         order.setAmount(total);
         order.setRemark(remark);

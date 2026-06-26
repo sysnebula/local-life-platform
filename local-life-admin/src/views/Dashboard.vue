@@ -34,7 +34,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getOrderPageAPI } from '../api'
+import { getOrderPageAPI, getDishPageAPI, getVoucherPageAPI } from '../api'
 import { shopStore } from '../store'
 
 const router = useRouter()
@@ -48,16 +48,20 @@ const orders = ref([])
 
 const fetch = async () => {
   try {
-    const res = await getOrderPageAPI({ shopId: shopStore.shopId, page: 1, size: 8 })
-    const records = res.data?.records || []
+    // 订单统计
+    const orderRes = await getOrderPageAPI({ shopId: shopStore.shopId, page: 1, size: 8 })
+    const records = orderRes.data?.records || []
     orders.value = records
-    if (res.data) {
-      stats[0].value = res.data.total || '-'
+    if (orderRes.data) {
+      stats[0].value = orderRes.data.total || 0
       const pending = records.filter(o => o.status === 0).length
       stats[1].value = pending
       const revenue = records.filter(o => o.status >= 1 && o.status <= 3).reduce((s, o) => s + (o.amount||0), 0)
       stats[2].value = '¥' + (revenue/100).toFixed(0)
     }
+    // 在售菜品数
+    const dishRes = await getDishPageAPI({ shopId: shopStore.shopId, page: 1, size: 1 })
+    stats[3].value = dishRes.data?.total || 0
   } catch(e) {}
 }
 

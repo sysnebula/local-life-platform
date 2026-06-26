@@ -1,7 +1,0 @@
-.page{background:#F8F9FA;min-height:100vh}
-.tabs{display:flex;background:#fff;padding:0 16px;gap:20px;border-bottom:1px solid #f0f0f0}.tab{font-size:14px;color:#999;padding:12px 0}.tab.active{color:#E8702A;border-bottom:2px solid #E8702A;font-weight:500}
-.order-card{background:#fff;margin:8px 16px 0;padding:14px;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}.o-header{display:flex;justify-content:space-between;margin-bottom:8px}.o-shop{font-size:15px;font-weight:600;color:#222}.o-type{padding:2px 8px;border-radius:4px;font-size:10px}.o-type.voucher{background:#FFF3EB;color:#E8702A}.o-type.takeout{background:#E8F5E9;color:#388E3C}
-.o-status{font-size:12px}.doing{color:#FF9800}.done{color:#4CAF50}.cancel{color:#ccc}
-.o-items{margin:8px 0}.o-item{display:flex;justify-content:space-between;font-size:13px;color:#555;padding:2px 0}
-.o-total{display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #f0f0f0;font-size:15px;font-weight:600}.total-price{color:#E8702A}
-.o-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}.btn{padding:5px 14px;border-radius:14px;font-size:12px;border:1px solid #ddd;background:#fff;color:#666}.btn.primary{background:#E8702A;color:#fff;border-color:#E8702A}.btn.danger{color:#F44336;border-color:#F44336}

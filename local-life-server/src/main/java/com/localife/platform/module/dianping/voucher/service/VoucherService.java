@@ -37,4 +37,9 @@ public interface VoucherService extends IService<Voucher> {
      * 查询用户券订单
      */
     Page<VoucherOrder> pageUserOrders(Long userId, int page, int size);
+
+    /**
+     * 商家查询店铺券订单（含用户信息）
+     */
+    Page<VoucherOrder> pageShopOrders(Long shopId, int page, int size);
 }

@@ -61,6 +61,7 @@ export const createVoucherAPI = (data) => http.post('/merchant/voucher', data)
 export const updateVoucherAPI = (id, data) => http.put(`/merchant/voucher/${id}`, data)
 export const deleteVoucherAPI = (id) => http.delete(`/merchant/voucher/${id}`)
 export const convertSeckillAPI = (id, data) => http.post(`/merchant/voucher/${id}/seckill`, data)
+export const getVoucherOrdersAPI = (params) => http.get('/merchant/voucher/orders', { params })
 
 // ===== 订单 =====
 export const getOrderPageAPI = (params) => http.get('/merchant/takeout/order/page', {params})

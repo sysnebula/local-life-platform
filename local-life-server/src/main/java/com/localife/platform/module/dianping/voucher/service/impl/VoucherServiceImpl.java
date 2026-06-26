@@ -14,6 +14,8 @@ import com.localife.platform.module.dianping.voucher.mapper.SeckillVoucherMapper
 import com.localife.platform.module.dianping.voucher.mapper.VoucherMapper;
 import com.localife.platform.module.dianping.voucher.mapper.VoucherOrderMapper;
 import com.localife.platform.module.dianping.voucher.service.VoucherService;
+import com.localife.platform.module.user.entity.User;
+import com.localife.platform.module.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -39,6 +41,7 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
     private final StringRedisTemplate redisTemplate;
     private final RedissonClient redissonClient;
     private final RabbitTemplate rabbitTemplate;
+    private final UserMapper userMapper;
 
     private static final DefaultRedisScript<Long> SECKILL_SCRIPT;
 
@@ -59,6 +62,18 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         }
         if (voucher.getType() == 1) {
             throw new BusinessException("秒杀券请走秒杀通道");
+        }
+
+        // 库存扣减（乐观锁，stock=null 表示不限量）
+        if (voucher.getStock() != null) {
+            boolean success = lambdaUpdate()
+                    .eq(Voucher::getId, voucherId)
+                    .gt(Voucher::getStock, 0)
+                    .setSql("stock = stock - 1")
+                    .update();
+            if (!success) {
+                throw new BusinessException("已售罄");
+            }
         }
 
         VoucherOrder order = new VoucherOrder();
@@ -91,8 +106,9 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         }
         // 2. 一人一单防重
         String orderKey = RedisConstants.SECKILL_ORDER_KEY + userId + ":" + voucherId;
+        long ttl = java.time.Duration.between(now, seckill.getEndTime()).getSeconds();
         Boolean first = redisTemplate.opsForValue()
-                .setIfAbsent(orderKey, "1", seckill.getEndTime().getSecond() - now.getSecond(), TimeUnit.SECONDS);
+                .setIfAbsent(orderKey, "1", ttl, TimeUnit.SECONDS);
         if (Boolean.FALSE.equals(first)) {
             throw new BusinessException("您已抢购过该秒杀券");
         }
@@ -165,14 +181,19 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         voucher.setRules(dto.getRules());
         voucher.setPayValue(dto.getPayValue());
         voucher.setActualValue(dto.getActualValue());
-        voucher.setType(0); // 默认普通券
         voucher.setStatus(1);
         voucher.setCreateTime(LocalDateTime.now());
-        save(voucher);
 
-        // 如果带了秒杀参数
-        if (dto.getStock() != null && dto.getStock() > 0) {
+        // 判断是否创建秒杀券
+        if (dto.getBeginTime() != null) {
+            voucher.setStock(null); // 秒杀券库存走 tb_seckill_voucher
+            voucher.setType(0); // 先以普通券创建
+            save(voucher);
             convertToSeckill(voucher.getId(), dto);
+        } else {
+            voucher.setStock(dto.getStock()); // 普通券库存
+            voucher.setType(0);
+            save(voucher);
         }
     }
 
@@ -216,7 +237,27 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
                 .eq(shopId != null, Voucher::getShopId, shopId)
                 .eq(type != null, Voucher::getType, type)
                 .orderByDesc(Voucher::getCreateTime);
-        return page(new Page<>(page, size), wrapper);
+        Page<Voucher> result = page(new Page<>(page, size), wrapper);
+
+        // 填充秒杀券的库存和时间
+        java.util.List<Long> seckillIds = result.getRecords().stream()
+                .filter(v -> v.getType() != null && v.getType() == 1)
+                .map(Voucher::getId).toList();
+        if (!seckillIds.isEmpty()) {
+            java.util.Map<Long, SeckillVoucher> seckillMap = seckillVoucherMapper.selectBatchIds(seckillIds).stream()
+                    .collect(java.util.stream.Collectors.toMap(SeckillVoucher::getVoucherId, s -> s));
+            result.getRecords().forEach(v -> {
+                if (v.getType() == 1) {
+                    SeckillVoucher sv = seckillMap.get(v.getId());
+                    if (sv != null) {
+                        v.setSeckillStock(sv.getStock());
+                        v.setSeckillBeginTime(sv.getBeginTime());
+                        v.setSeckillEndTime(sv.getEndTime());
+                    }
+                }
+            });
+        }
+        return result;
     }
 
     @Override
@@ -224,7 +265,54 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         LambdaQueryWrapper<VoucherOrder> wrapper = new LambdaQueryWrapper<VoucherOrder>()
                 .eq(VoucherOrder::getUserId, userId)
                 .orderByDesc(VoucherOrder::getCreateTime);
-        return voucherOrderMapper.selectPage(new Page<>(page, size), wrapper);
+        Page<VoucherOrder> result = voucherOrderMapper.selectPage(new Page<>(page, size), wrapper);
+        fillVoucherInfo(result.getRecords());
+        return result;
+    }
+
+    @Override
+    public Page<VoucherOrder> pageShopOrders(Long shopId, int page, int size) {
+        LambdaQueryWrapper<Voucher> vWrapper = new LambdaQueryWrapper<Voucher>()
+                .eq(Voucher::getShopId, shopId)
+                .select(Voucher::getId);
+        java.util.List<Long> voucherIds = list(vWrapper).stream().map(Voucher::getId).toList();
+        if (voucherIds.isEmpty()) {
+            return new Page<>(page, size, 0);
+        }
+        LambdaQueryWrapper<VoucherOrder> wrapper = new LambdaQueryWrapper<VoucherOrder>()
+                .in(VoucherOrder::getVoucherId, voucherIds)
+                .orderByDesc(VoucherOrder::getCreateTime);
+        Page<VoucherOrder> result = voucherOrderMapper.selectPage(new Page<>(page, size), wrapper);
+
+        // 填充用户手机号
+        java.util.Set<Long> userIds = result.getRecords().stream()
+                .map(VoucherOrder::getUserId).collect(java.util.stream.Collectors.toSet());
+        if (!userIds.isEmpty()) {
+            java.util.Map<Long, String> phoneMap = userMapper.selectBatchIds(userIds).stream()
+                    .collect(java.util.stream.Collectors.toMap(User::getId, u -> u.getPhone() != null ? u.getPhone() : "未知"));
+            result.getRecords().forEach(o -> o.setUserPhone(phoneMap.getOrDefault(o.getUserId(), "未知")));
+        }
+        fillVoucherInfo(result.getRecords());
+        return result;
+    }
+
+    /**
+     * 填充券订单关联的券信息（标题、金额、面值、店铺）
+     */
+    private void fillVoucherInfo(java.util.List<VoucherOrder> orders) {
+        if (orders.isEmpty()) return;
+        java.util.Set<Long> vIds = orders.stream().map(VoucherOrder::getVoucherId).collect(java.util.stream.Collectors.toSet());
+        java.util.Map<Long, Voucher> vMap = listByIds(vIds).stream()
+                .collect(java.util.stream.Collectors.toMap(Voucher::getId, v -> v));
+        orders.forEach(o -> {
+            Voucher v = vMap.get(o.getVoucherId());
+            if (v != null) {
+                o.setVoucherTitle(v.getTitle());
+                o.setPayValue(v.getPayValue());
+                o.setActualValue(v.getActualValue());
+                o.setShopId(v.getShopId());
+            }
+        });
     }
 
     // ==================== 简单ID生成 ====================

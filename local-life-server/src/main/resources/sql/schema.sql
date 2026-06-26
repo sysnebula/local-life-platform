@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS tb_voucher
     rules        TEXT COMMENT '使用规则(JSON)',
     pay_value    INT          NOT NULL COMMENT '支付金额(分)',
     actual_value INT          NOT NULL COMMENT '面值(分)',
+    stock        INT          COMMENT '库存(null=不限量)',
     type         TINYINT DEFAULT 0 COMMENT '0=普通券 1=秒杀券',
     status       TINYINT DEFAULT 1 COMMENT '0=下架 1=上架',
     create_time  DATETIME,

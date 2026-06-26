@@ -108,7 +108,7 @@ public class CustomerTakeoutController {
         if (sid == null) throw new BusinessException("shopId不能为空");
         Long shopId = Long.valueOf(sid.toString());
         String remark = (String) body.getOrDefault("remark", "");
-        return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, null, remark));
+        return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, remark));
     }
 
     @Operation(summary = "我的订单")

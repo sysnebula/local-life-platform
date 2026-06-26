@@ -15,7 +15,6 @@ public class Order {
     private String orderNumber;
     private Long userId;
     private Long shopId;
-    private Long addressBookId;
     private Integer status;  // 0=待接单 1=已接单 2=配送中 3=已完成 4=已取消
     private Integer amount;  // 分
     private String remark;

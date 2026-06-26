@@ -1,0 +1,11 @@
+{
+  "name": "本地生活",
+  "appid": "wx62265c49944608a9",
+  "description": "本地生活综合服务平台",
+  "versionName": "1.0.0",
+  "mp-weixin": {
+    "appid": "wx62265c49944608a9",
+    "setting": { "urlCheck": false, "es6": true, "postcss": true, "minified": true },
+    "libVersion": "3.0.0"
+  }
+}

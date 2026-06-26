@@ -14,8 +14,10 @@ public class VoucherDTO {
     private Integer payValue;
     private Integer actualValue;
 
-    // 秒杀券专用
+    // 库存（普通券和秒杀券通用，null=不限量）
     private Integer stock;
+
+    // 秒杀券专用
     private LocalDateTime beginTime;
     private LocalDateTime endTime;
 }
