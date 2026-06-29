@@ -32,3 +32,4 @@ dist/
 
 # WeChat Mini Program
 project.private.config.json
+/uploads/
