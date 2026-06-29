@@ -48,13 +48,6 @@ public class User {
     private String icon;
 
     /**
-     * 性别: 0=未知, 1=男, 2=女
-     */
-    private Integer sex;
-
-
-
-    /**
      * 用户类型: 0=顾客, 1=商家
      */
     private Integer userType;

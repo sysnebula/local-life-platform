@@ -36,6 +36,11 @@ spring:
           min-idle: 4
           max-wait: 3000ms
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
   rabbitmq:
     host: 127.0.0.1
     port: 5672

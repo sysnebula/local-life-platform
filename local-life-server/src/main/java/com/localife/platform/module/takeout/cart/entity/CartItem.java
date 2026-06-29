@@ -13,7 +13,6 @@ public class CartItem implements Serializable {
     private Long dishId;
     private Long setmealId;
     private String name;
-    private String image;
     private Integer price;
     private Integer number;
     private String flavor; // 选中的口味

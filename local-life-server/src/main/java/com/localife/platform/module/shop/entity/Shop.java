@@ -18,7 +18,6 @@ public class Shop {
     private String name;
     private Long typeId;
     private Long merchantUserId;
-    private String images;
     private String area;
     private String address;
     private Integer avgPrice;

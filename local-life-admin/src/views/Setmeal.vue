@@ -10,7 +10,7 @@
         <template #default="{row}">¥{{ (row.price / 100).toFixed(2) }}</template>
       </el-table-column>
       <el-table-column label="包含菜品" min-width="200">
-        <template #default="{row}">{{ row.dishes?.map(d => d.name + '×' + d.copies).join('、') }}</template>
+        <template #default="{row}">{{ row.dishes?.map(d => d.name + '×' + d.copies).join('、') || '-' }}</template>
       </el-table-column>
       <el-table-column label="状态" width="100">
         <template #default="{row}">
@@ -52,12 +52,14 @@
         </el-form-item>
         <el-form-item label="包含菜品">
           <div v-for="(d,i) in form.dishes" :key="i" style="display:flex;gap:8px;margin-bottom:4px;align-items:center">
-            <el-input v-model="d.name" placeholder="菜品名" style="width:140px"/>
-            <el-input-number v-model="d.price" :min="0" placeholder="单价" style="width:100px"/>
-            <el-input-number v-model="d.copies" :min="1" placeholder="份数" style="width:80px"/>
+            <el-select v-model="d.dishId" placeholder="选择菜品" style="width:200px" @change="onDishChange(i)">
+              <el-option v-for="dish in dishOptions" :key="dish.id" :label="dish.name + ' ¥' + (dish.price/100).toFixed(2)" :value="dish.id"/>
+            </el-select>
+            <el-input-number v-model="d.copies" :min="0" style="width:110px" controls-position="right"/>
+            <span style="color:#999;font-size:12px;margin-left:4px">份</span>
             <el-button @click="form.dishes.splice(i,1)">✕</el-button>
           </div>
-          <el-button size="small" @click="form.dishes.push({name:'',price:0,copies:1})">+添加菜品</el-button>
+          <el-button size="small" @click="form.dishes.push({dishId:null,name:'',price:0,copies:1})">+添加菜品</el-button>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -75,6 +77,7 @@ import {
   addSetmealAPI,
   deleteSetmealAPI,
   getCategoriesAPI,
+  getDishPageAPI,
   getSetmealPageAPI,
   toggleSetmealAPI,
   updateSetmealAPI
@@ -90,16 +93,28 @@ const searchName = ref('')
 const dialogVisible = ref(false);
 const editId = ref(null);
 const categories = ref([])
+const dishOptions = ref([])
 const form = reactive({name: '', categoryId: null, price: 0, description: '', dishes: [], shopId: shopStore.shopId})
 
 onMounted(async () => {
   fetch()
   try {
     const res = await getCategoriesAPI({shopId: shopStore.shopId, type: 2});
-    categories.value = res.data
-  } catch (e) {
-  }
+    categories.value = res.data || []
+  } catch (e) {}
+  try {
+    const res = await getDishPageAPI({shopId: shopStore.shopId, page: 1, size: 200});
+    dishOptions.value = (res.data?.records || []).filter(d => d.status === 1)
+  } catch (e) {}
 })
+const onDishChange = (idx) => {
+  const d = form.dishes[idx]
+  const dish = dishOptions.value.find(dish => dish.id === d.dishId)
+  if (dish) {
+    d.name = dish.name
+    d.price = dish.price / 100
+  }
+}
 const fetch = async () => {
   loading.value = true
   try {
@@ -118,7 +133,7 @@ const openDialog = (row) => {
     categoryId: row.categoryId,
     price: row.price / 100,
     description: row.description || '',
-    dishes: row.dishes?.map(d => ({name: d.name, price: d.price / 100, copies: d.copies})) || []
+    dishes: row.dishes?.map(d => ({dishId: d.dishId, name: d.name, price: d.price / 100, copies: d.copies})) || []
   })
   else Object.assign(form, {name: '', categoryId: null, price: 0, description: '', dishes: []})
   dialogVisible.value = true

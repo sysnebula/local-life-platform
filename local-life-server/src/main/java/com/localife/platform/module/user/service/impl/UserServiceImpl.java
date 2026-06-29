@@ -64,8 +64,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("验证码错误");
         }
 
-        // 查用户，不存在则自动注册
-        User user = lambdaQuery().eq(User::getPhone, phone).one();
+        // 查用户（仅限顾客），不存在则自动注册
+        User user = lambdaQuery()
+                .eq(User::getPhone, phone)
+                .eq(User::getUserType, UserTypeEnum.CUSTOMER.getCode()).one();
         if (user == null) {
             user = new User();
             user.setPhone(phone);
@@ -145,10 +147,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (lambdaQuery().eq(User::getUsername, dto.getUsername()).count() > 0) {
             throw new BusinessException("用户名已存在");
         }
-        // 检查手机号唯一
+        // 检查手机号唯一（仅限商家）
         if (StrUtil.isNotBlank(dto.getPhone())
-                && lambdaQuery().eq(User::getPhone, dto.getPhone()).count() > 0) {
-            throw new BusinessException("该手机号已被注册");
+                && lambdaQuery().eq(User::getPhone, dto.getPhone())
+                        .eq(User::getUserType, UserTypeEnum.MERCHANT.getCode()).count() > 0) {
+            throw new BusinessException("该手机号已被商家注册");
         }
 
         // 1. 创建商家用户
@@ -226,7 +229,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .nickName(user.getNickName())
                 .name(user.getName())
                 .icon(user.getIcon())
-                .sex(user.getSex())
                 .userType(user.getUserType())
                 .token(token)
                 .build();

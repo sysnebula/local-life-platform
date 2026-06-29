@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -19,6 +20,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final JwtInterceptor jwtInterceptor;
     private final MerchantInterceptor merchantInterceptor;
     private final CustomerInterceptor customerInterceptor;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + System.getProperty("user.dir") + "/uploads/");
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -38,7 +45,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/customer/user/login",
                         "/api/merchant/login",
-                        "/api/merchant/register"
+                        "/api/merchant/register",
+                        "/api/common/upload"
                 );
 
         // 商家端角色校验

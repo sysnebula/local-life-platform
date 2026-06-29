@@ -79,7 +79,6 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         VoucherOrder order = new VoucherOrder();
         order.setUserId(userId);
         order.setVoucherId(voucherId);
-        order.setPayType(0);
         order.setStatus(1); // 已支付
         order.setCreateTime(LocalDateTime.now());
         order.setPayTime(LocalDateTime.now());
@@ -159,7 +158,6 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         order.setId(nextOrderId());
         order.setUserId(userId);
         order.setVoucherId(voucherId);
-        order.setPayType(0);
         order.setStatus(1);
         order.setCreateTime(LocalDateTime.now());
         order.setPayTime(LocalDateTime.now());

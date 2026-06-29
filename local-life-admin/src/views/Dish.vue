@@ -44,16 +44,17 @@
         <el-form-item label="价格(元)">
           <el-input-number v-model="form.price" :min="0" :precision="2"/>
         </el-form-item>
+        <el-form-item label="图片">
+          <el-upload :auto-upload="false" :show-file-list="false" :on-change="onImageChange" accept="image/*">
+            <img v-if="form.image" :src="form.image" style="width:100px;height:100px;object-fit:cover;border-radius:8px"/>
+            <el-button v-else type="primary" plain>选择图片</el-button>
+          </el-upload>
+        </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="form.description"/>
         </el-form-item>
         <el-form-item label="口味">
-          <div v-for="(f,i) in form.flavors" :key="i" style="display:flex;gap:8px;margin-bottom:4px">
-            <el-input v-model="f.name" placeholder="口味名" style="width:120px"/>
-            <el-input v-model="f.value" placeholder="口味值" style="width:200px"/>
-            <el-button @click="form.flavors.splice(i,1)">✕</el-button>
-          </div>
-          <el-button size="small" @click="form.flavors.push({name:'',value:''})">+添加口味</el-button>
+          <el-input v-model="form.flavor" placeholder="如: 微辣,中辣,特辣"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -67,7 +68,7 @@
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
-import {addDishAPI, deleteDishAPI, getCategoriesAPI, getDishPageAPI, toggleDishAPI, updateDishAPI} from '../api'
+import {addDishAPI, deleteDishAPI, getCategoriesAPI, getDishPageAPI, toggleDishAPI, updateDishAPI, uploadAPI} from '../api'
 import {shopStore} from '../store'
 
 const tableData = ref([]);
@@ -79,7 +80,7 @@ const searchName = ref('')
 const dialogVisible = ref(false);
 const editId = ref(null);
 const categories = ref([])
-const form = reactive({name: '', categoryId: null, price: 0, description: '', flavors: [], shopId: shopStore.shopId})
+const form = reactive({name: '', categoryId: null, price: 0, description: '', image: '', flavor: '', shopId: shopStore.shopId})
 
 const fetch = async () => {
   loading.value = true
@@ -96,8 +97,9 @@ onMounted(async () => {
   fetch()
   try {
     const res = await getCategoriesAPI({shopId: shopStore.shopId, type: 1});
-    categories.value = res.data
+    categories.value = res.data || []
   } catch (e) {
+    console.error('加载分类失败', e)
   }
 })
 const openDialog = (row) => {
@@ -108,17 +110,26 @@ const openDialog = (row) => {
       categoryId: row.categoryId,
       price: row.price / 100,
       description: row.description || '',
-      flavors: row.flavors || []
+      image: row.image || '',
+      flavor: row.flavors?.map(f => f.value).join(',') || ''
     })
   } else {
-    Object.assign(form, {name: '', categoryId: null, price: 0, description: '', flavors: []})
+    Object.assign(form, {name: '', categoryId: null, price: 0, description: '', image: '', flavor: ''})
   }
   dialogVisible.value = true
+}
+const onImageChange = async (file) => {
+  try {
+    const res = await uploadAPI(file.raw)
+    form.image = res.data
+  } catch (e) {}
 }
 const save = async () => {
   saving.value = true
   try {
-    const data = {...form, price: Math.round(form.price * 100), shopId: shopStore.shopId}
+    const flavors = form.flavor ? [{ name: '', value: form.flavor }] : []
+    const data = { ...form, price: Math.round(form.price * 100), flavors, shopId: shopStore.shopId }
+    delete data.flavor
     if (editId.value) {
       data.id = editId.value;
       await updateDishAPI(data)

@@ -5,6 +5,7 @@ import api from '../../utils/api.js'
 
 const total = ref(0)
 const shopItems = ref([])
+const shopInfo = ref({ deliveryFee: 0, minOrder: 0, name: '' })
 
 onShow(() => {
   if (!uni.getStorageSync('token')) {
@@ -23,23 +24,34 @@ const loadCart = async () => {
     for (const i of items) {
       const key = i.shopId || 0
       if (!map[key]) {
-        let shopName = ''
+        let shopName = '', deliveryFee = 0, minOrder = 0
         if (i.shopId) {
-          try { const shopRes = await api.getShopDetailAPI(i.shopId); shopName = shopRes.data?.name || '' } catch (e) {}
+          try {
+            const shopRes = await api.getShopDetailAPI(i.shopId)
+            shopName = shopRes.data?.name || ''
+            deliveryFee = shopRes.data?.deliveryFee || 0
+            minOrder = shopRes.data?.minOrder || 0
+          } catch (e) {}
         }
-        map[key] = { shopId: key, shopName: shopName || '未知店铺', items: [] }
+        map[key] = { shopId: key, shopName: shopName || '未知店铺', deliveryFee, minOrder, items: [] }
       }
       map[key].items.push(i)
     }
     Object.values(map).forEach(s => s.items.forEach(i => { i.price = ((i.price || 0) / 100).toFixed(1) }))
     shopItems.value = Object.values(map)
-    calcTotal()
+    if (shopItems.value.length > 0) {
+      shopInfo.value = shopItems.value[0]
+    }
   } catch (e) {}
+  calcTotal()
 }
 
 const calcTotal = () => {
   let t = 0
   shopItems.value.forEach(s => s.items.forEach(i => t += parseFloat(i.price || 0) * (i.number || 1)))
+  if (shopItems.value.length > 0) {
+    t += (shopInfo.value.deliveryFee || 0) / 100
+  }
   total.value = t.toFixed(1)
 }
 
@@ -56,12 +68,18 @@ const clearCart = async () => {
 const placeOrder = async () => {
   if (!shopItems.value.length) return
   const shopId = shopItems.value[0].shopId
+  if (!shopId) {
+    uni.showToast({ title: '店铺信息异常', icon: 'none' })
+    return
+  }
   try {
     await api.placeOrderAPI({ shopId, remark: '' })
     shopItems.value = []; total.value = 0
     uni.showToast({ title: '下单成功！', icon: 'success' })
     loadCart()
-  } catch (e) {}
+  } catch (e) {
+    uni.showToast({ title: typeof e === 'string' ? e : '下单失败', icon: 'none' })
+  }
 }
 </script>
 
@@ -83,7 +101,12 @@ const placeOrder = async () => {
     </block>
     <view v-if="!shopItems.length" class="empty"><text class="empty-icon">🛒</text><text class="empty-text">购物车空空如也</text></view>
     <view class="bottom-bar" v-if="shopItems.length">
-      <view class="total"><text>合计 ¥{{ total }}</text></view>
+      <view class="total">
+        <view style="font-size:12px;color:#999" v-if="shopInfo.deliveryFee > 0">配送费 ¥{{ (shopInfo.deliveryFee / 100).toFixed(1) }}</view>
+        <view style="font-size:12px;color:#999" v-if="shopInfo.minOrder > 0">起送 ¥{{ (shopInfo.minOrder / 100).toFixed(1) }}</view>
+        <text>合计 ¥{{ total }}</text>
+        <text style="font-size:10px;color:#999;display:block">已含配送费</text>
+      </view>
       <button class="checkout-btn" @click="placeOrder">去结算</button>
     </view>
   </view>

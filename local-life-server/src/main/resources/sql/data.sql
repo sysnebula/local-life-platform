@@ -15,10 +15,10 @@ INSERT INTO tb_shop_type (id, name, sort) VALUES
 
 -- 用户: 1商家 + 1顾客
 INSERT INTO tb_user (id, phone, username, password, nick_name, name, sex, user_type, status, create_time) VALUES
-(1, '13800001111', 'admin', '$2a$10$riEZs8miW/iSo8GgJZW8EeL5DGn6K2mHZ1fImUXRj9OmAZM9V7NEi', '张店长', '张建国', 1, 1, 1, NOW());
+(1, '13800001111', 'admin', '$2a$10$riEZs8miW/iSo8GgJZW8EeL5DGn6K2mHZ1fImUXRj9OmAZM9V7NEi', '张店长', '张建国', 1, 1, NOW());
 
-INSERT INTO tb_user (id, phone, nick_name, sex, user_type, status, create_time) VALUES
-(10, '13812345678', '美食猎人', 1, 0, 1, NOW());
+INSERT INTO tb_user (id, phone, nick_name, user_type, status, create_time) VALUES
+(10, '13812345678', '美食猎人', 0, 1, NOW());
 
 -- 店铺: 蜀九香火锅
 INSERT INTO tb_shop (id, name, type_id, merchant_user_id, area, address, avg_price, sold, score, open_hours, phone, description, delivery_fee, min_order, status, create_time) VALUES

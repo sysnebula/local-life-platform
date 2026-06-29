@@ -35,6 +35,13 @@ export const getMeAPI = () => http.get('/merchant/me')
 export const getMyShopAPI = () => http.get('/merchant/shop/my')
 export const updateShopAPI = (data) => http.put('/merchant/shop', data)
 
+// ===== 通用 =====
+export const uploadAPI = (file) => {
+  const fd = new FormData()
+  fd.append('file', file)
+  return http.post('/common/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+}
+
 // ===== 分类 =====
 export const getCategoriesAPI = (params) => http.get('/merchant/takeout/category', {params})
 export const addCategoryAPI = (data) => http.post('/merchant/takeout/category', data)

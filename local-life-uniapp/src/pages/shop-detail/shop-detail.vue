@@ -54,6 +54,7 @@ const loadCartSummary = async () => {
     const items = res.data || []
     let count = 0, total = 0
     items.forEach(i => { count += i.number || 1; total += (i.price || 0) * (i.number || 1) })
+    total += (shop.value.deliveryFee || 0)
     cartCount.value = count; cartTotal.value = (total / 100).toFixed(0)
   } catch (e) {}
 }
@@ -63,6 +64,7 @@ const loadCartDetail = async () => {
     const items = (res.data || []).map(i => ({ ...i, showPrice: ((i.price || 0) / 100).toFixed(1) }))
     let total = 0
     items.forEach(i => { total += (i.price || 0) * (i.number || 1) })
+    total += (shop.value.deliveryFee || 0)
     cartItems.value = items; cartCount.value = items.length; cartTotal.value = (total / 100).toFixed(0); showCart.value = true
   } catch (e) {}
 }
@@ -163,6 +165,7 @@ const addCart = (item) => {
         </view>
         <view v-if="!cartItems.length" class="cp-empty">购物车为空</view>
         <view class="cp-bottom">
+          <view style="font-size:11px;color:#999;margin-bottom:4px" v-if="shop.deliveryFee > 0">含配送费 ¥{{ (shop.deliveryFee/100).toFixed(1) }}</view>
           <text class="cp-total">合计 ¥{{ cartTotal }}</text>
           <view class="cp-actions">
             <button class="cp-back" @click="hideCartPopup">继续点餐</button>

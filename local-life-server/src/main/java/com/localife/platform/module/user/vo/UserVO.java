@@ -15,7 +15,6 @@ public class UserVO {
     private String nickName;
     private String name;
     private String icon;
-    private Integer sex;
     private Integer userType;
     private String token;
     private Long shopId;  // 注册时返回，商家所属店铺ID

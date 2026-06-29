@@ -13,6 +13,8 @@ import com.localife.platform.module.takeout.order.entity.Order;
 import com.localife.platform.module.takeout.order.entity.OrderDetail;
 import com.localife.platform.module.takeout.order.mapper.OrderDetailMapper;
 import com.localife.platform.module.takeout.order.mapper.OrderMapper;
+import com.localife.platform.module.shop.entity.Shop;
+import com.localife.platform.module.shop.mapper.ShopMapper;
 import com.localife.platform.websocket.OrderNotificationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
 
     private final OrderDetailMapper orderDetailMapper;
     private final CartService cartService;
+    private final ShopMapper shopMapper;
     private final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
 
     /**
@@ -41,15 +44,31 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
             throw new BusinessException("购物车为空");
         }
 
-        // 计算总金额
+        // 查店铺配送信息
+        Shop shop = shopMapper.selectById(shopId);
+        if (shop == null) {
+            throw new BusinessException("店铺不存在");
+        }
+
+        // 计算商品总金额
         int total = cartItems.stream().mapToInt(i -> i.getPrice() * i.getNumber()).sum();
+
+        // 起送价校验
+        int minOrder = shop.getMinOrder() != null ? shop.getMinOrder() : 0;
+        if (total < minOrder) {
+            throw new BusinessException("未达起送价 ¥" + (minOrder / 100.0) + "，还差 ¥" + ((minOrder - total) / 100.0));
+        }
+
+        // 加上配送费
+        int deliveryFee = shop.getDeliveryFee() != null ? shop.getDeliveryFee() : 0;
+        int finalAmount = total + deliveryFee;
 
         Order order = new Order();
         order.setOrderNumber(String.valueOf(snowflake.nextId()));
         order.setUserId(userId);
         order.setShopId(shopId);
         order.setStatus(OrderStatusEnum.PENDING.getCode());
-        order.setAmount(total);
+        order.setAmount(finalAmount);
         order.setRemark(remark);
         order.setCreateTime(LocalDateTime.now());
         save(order);
@@ -61,7 +80,6 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
             detail.setDishId(item.getDishId());
             detail.setSetmealId(item.getSetmealId());
             detail.setName(item.getName());
-            detail.setImage(item.getImage());
             detail.setFlavor(item.getFlavor());
             detail.setPrice(item.getPrice());
             detail.setNumber(item.getNumber());

@@ -21,17 +21,11 @@ public class VoucherOrder implements Serializable {
     private Long userId;
     private Long voucherId;
     /**
-     * 支付方式：0=微信支付
-     */
-    private Integer payType;
-    /**
      * 0=未支付 1=已支付 2=已退款 3=已核销
      */
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime payTime;
-    private LocalDateTime useTime;
-    private LocalDateTime refundTime;
 
     /**
      * 用户手机号（非DB字段，查询时填充）
