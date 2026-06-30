@@ -3,6 +3,7 @@ package com.localife.platform.module.takeout.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.localife.platform.common.result.Result;
+import com.localife.platform.common.exception.BusinessException;
 import com.localife.platform.module.takeout.category.entity.Category;
 import com.localife.platform.module.takeout.category.mapper.CategoryMapper;
 import com.localife.platform.module.takeout.dish.entity.Dish;
@@ -83,6 +84,9 @@ public class MerchantTakeoutController {
 
     @PostMapping("/dish")
     public Result<Void> dishAdd(@RequestBody Dish dish) {
+        if (dish.getCategoryId() == null) throw new BusinessException("请选择分类");
+        if (dish.getName() == null || dish.getName().isBlank()) throw new BusinessException("菜品名称不能为空");
+        dish.setStatus(1); // 默认上架
         dish.setCreateTime(LocalDateTime.now());
         dishMapper.insert(dish);
         if (dish.getFlavors() != null) dish.getFlavors().forEach(f -> {
@@ -94,6 +98,7 @@ public class MerchantTakeoutController {
 
     @PutMapping("/dish")
     public Result<Void> dishUpdate(@RequestBody Dish dish) {
+        if (dish.getCategoryId() == null) throw new BusinessException("请选择分类");
         dishMapper.updateById(dish);
         dishFlavorMapper.delete(new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, dish.getId()));
         if (dish.getFlavors() != null) dish.getFlavors().forEach(f -> {
@@ -139,6 +144,8 @@ public class MerchantTakeoutController {
 
     @PostMapping("/setmeal")
     public Result<Void> setmealAdd(@RequestBody Setmeal s) {
+        if (s.getCategoryId() == null) throw new BusinessException("请选择分类");
+        s.setStatus(1);
         s.setCreateTime(LocalDateTime.now());
         setmealMapper.insert(s);
         if (s.getDishes() != null) s.getDishes().forEach(d -> {
