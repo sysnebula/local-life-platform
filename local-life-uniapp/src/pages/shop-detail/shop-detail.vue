@@ -73,7 +73,7 @@ const cartMinus = async (dishId) => { try { await api.updateCartAPI('dish_' + di
 const clearCart = async () => { try { await api.clearCartAPI(); showCart.value = false; cartCount.value = 0; cartTotal.value = 0 } catch (e) {} }
 const goCart = () => uni.navigateTo({ url: '/pages/cart/cart' })
 
-// 券购买确认弹窗 → 两步：确认购买 → 确认支付
+// 券购买：确认后直接下单+支付，一步完成
 const buyVoucher = (item) => {
   if (!uni.getStorageSync('token')) { uni.switchTab({ url: '/pages/profile/profile' }); return }
   wx.showModal({
@@ -83,18 +83,14 @@ const buyVoucher = (item) => {
       if (!res.confirm) return
       const call = item.type === 1 ? api.seckillAPI(item.id) : api.buyVoucherAPI(item.id)
       call.then((result) => {
-        // 购买成功后立即弹出支付确认
         const orderId = result.data?.id || result.data
-        wx.showModal({
-          title: '确认支付',
-          content: `实付 ¥${item.payValueYuan}，确认支付？`,
-          success(payRes) {
-            if (!payRes.confirm) { uni.showToast({ title: '可在订单页支付', icon: 'none' }); loadVouchers(shopId.value); return }
-            api.payVoucherOrderAPI(orderId).then(() => {
-              uni.showToast({ title: '支付成功！', icon: 'success' })
-              loadVouchers(shopId.value)
-            }).catch(e => uni.showToast({ title: '支付失败', icon: 'none' }))
-          }
+        // 自动完成支付，无需二次确认
+        api.payVoucherOrderAPI(orderId).then(() => {
+          uni.showToast({ title: '购买成功！', icon: 'success' })
+          loadVouchers(shopId.value)
+        }).catch(() => {
+          uni.showToast({ title: '下单成功，支付失败，请在订单页重试', icon: 'none' })
+          loadVouchers(shopId.value)
         })
       }).catch(e => uni.showToast({ title: typeof e === 'string' ? e : '购买失败', icon: 'none' }))
     }
