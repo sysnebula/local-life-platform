@@ -26,6 +26,7 @@ const request = (url, method = 'GET', data = {}) => {
 
 export default {
   loginAPI: (data) => request('/customer/user/login', 'POST', data),
+  wxLoginAPI: (data) => request('/customer/user/wx-login', 'POST', data),
   getMeAPI: () => request('/customer/user/me'),
   updateMeAPI: (data) => request('/customer/user/me', 'PUT', data),
   getShopDetailAPI: (id) => request('/customer/shop/' + id),
@@ -42,9 +43,18 @@ export default {
   updateCartAPI: (field, data) => request('/customer/takeout/cart/' + field, 'PUT', data),
   clearCartAPI: () => request('/customer/takeout/cart', 'DELETE'),
   placeOrderAPI: (data) => request('/customer/takeout/order', 'POST', data),
+  payTakeoutOrderAPI: (id) => request('/customer/takeout/order/' + id + '/pay', 'PUT'),
   getTakeoutOrdersAPI: (params) => request('/customer/takeout/orders', 'GET', params),
   cancelOrderAPI: (id) => request('/customer/takeout/order/' + id + '/cancel', 'PUT', { reason: '' }),
   remindAPI: (id) => request('/customer/takeout/order/' + id + '/remind', 'POST'),
+  payVoucherOrderAPI: (id) => request('/customer/voucher/order/' + id + '/pay', 'PUT'),
+  refundVoucherOrderAPI: (id) => request('/customer/voucher/order/' + id + '/refund', 'PUT'),
+  getAddressListAPI: () => request('/customer/address'),
+  addAddressAPI: (data) => request('/customer/address', 'POST', data),
+  editAddressAPI: (id, data) => request('/customer/address/' + id, 'PUT', data),
+  deleteAddressAPI: (id) => request('/customer/address/' + id, 'DELETE'),
+  setDefaultAddressAPI: (id) => request('/customer/address/' + id + '/default', 'PUT'),
+  searchShopsAPI: (params) => request('/customer/shop/search', 'GET', params),
   getShopNotesAPI: (shopId, params) => request('/customer/explore/shop/' + shopId, 'GET', params),
   publishNoteAPI: (data) => request('/customer/explore', 'POST', data),
   getMyNotesAPI: () => request('/customer/explore/my')

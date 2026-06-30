@@ -1,6 +1,7 @@
 package com.localife.platform.module.dianping.explore.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -27,4 +28,10 @@ public class ExploreNote {
     private Integer status; // 1=已发布
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+
+    /** 以下为非数据库字段 */
+    @TableField(exist = false)
+    private String userName;
+    @TableField(exist = false)
+    private String shopName;
 }

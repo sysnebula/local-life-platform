@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS tb_user
 (
     id          BIGINT PRIMARY KEY,
     phone       VARCHAR(11) COMMENT '手机号',
+    openid      VARCHAR(64) COMMENT '微信openid',
     username    VARCHAR(32) UNIQUE COMMENT '商家登录用户名',
     password    VARCHAR(128) COMMENT 'BCrypt密码',
     nick_name   VARCHAR(32) COMMENT '昵称',
@@ -47,6 +48,8 @@ CREATE TABLE IF NOT EXISTS tb_shop
     description      TEXT COMMENT '简介',
     delivery_fee     INT           DEFAULT 0 COMMENT '配送费(分)',
     min_order        INT           DEFAULT 0 COMMENT '起送价(分)',
+    image            VARCHAR(1024) COMMENT '店铺头像',
+    delivery_time    INT           DEFAULT 30 COMMENT '预计配送时间(分钟)',
     status           TINYINT       DEFAULT 1 COMMENT '0=休息 1=营业',
     create_time      DATETIME,
     update_time      DATETIME,
@@ -104,7 +107,8 @@ CREATE TABLE IF NOT EXISTS tb_voucher_order
     create_time DATETIME,
     pay_time    DATETIME,
     INDEX idx_user (user_id),
-    INDEX idx_voucher (voucher_id)
+    INDEX idx_voucher (voucher_id),
+    UNIQUE INDEX uk_user_voucher (user_id, voucher_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='券订单';
 
@@ -192,8 +196,10 @@ CREATE TABLE IF NOT EXISTS tb_takeout_order
     user_id         BIGINT      NOT NULL,
     shop_id         BIGINT      NOT NULL,
     status          TINYINT DEFAULT 0 COMMENT '0=待接单 1=已接单 2=配送中 3=已完成 4=已取消',
+    paid            TINYINT DEFAULT 0 COMMENT '0=未支付 1=已支付',
     amount          INT         NOT NULL COMMENT '金额(分)',
     remark          VARCHAR(256),
+    address_info    VARCHAR(512) COMMENT '配送地址快照(JSON)',
     cancel_reason   VARCHAR(256),
     create_time     DATETIME,
     update_time     DATETIME,
@@ -218,6 +224,24 @@ CREATE TABLE IF NOT EXISTS tb_order_detail
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='订单明细';
 
+
+-- 用户地址表
+CREATE TABLE IF NOT EXISTS tb_address
+(
+    id           BIGINT PRIMARY KEY,
+    user_id      BIGINT       NOT NULL COMMENT 'FK to tb_user',
+    contact_name VARCHAR(32)  NOT NULL COMMENT '联系人',
+    phone        VARCHAR(20)  NOT NULL COMMENT '联系电话',
+    province     VARCHAR(32)  COMMENT '省',
+    city         VARCHAR(32)  COMMENT '市',
+    district     VARCHAR(32)  COMMENT '区',
+    detail       VARCHAR(255) NOT NULL COMMENT '详细地址',
+    is_default   TINYINT DEFAULT 0 COMMENT '0=否 1=默认',
+    create_time  DATETIME,
+    update_time  DATETIME,
+    INDEX idx_user (user_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户地址';
 
 -- 探店笔记表（关联订单 — 只有消费过才能写笔记）
 CREATE TABLE IF NOT EXISTS tb_explore_note

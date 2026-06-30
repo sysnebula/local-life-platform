@@ -31,4 +31,7 @@ public interface ShopService extends IService<Shop> {
 
     /** 根据商家用户ID查询所属店铺 */
     Shop getByMerchantUserId(Long userId);
+
+    /** 搜索店铺（按名称模糊匹配） */
+    Page<Shop> search(String keyword, int page, int size);
 }

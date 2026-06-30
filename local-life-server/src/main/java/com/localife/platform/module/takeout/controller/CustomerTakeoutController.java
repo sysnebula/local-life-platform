@@ -107,8 +107,16 @@ public class CustomerTakeoutController {
         Object sid = body.get("shopId");
         if (sid == null) throw new BusinessException("shopId不能为空");
         Long shopId = Long.valueOf(sid.toString());
+        Long addressId = body.get("addressId") != null ? Long.valueOf(body.get("addressId").toString()) : null;
         String remark = (String) body.getOrDefault("remark", "");
-        return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, remark));
+        return Result.success(orderService.placeOrder(UserContext.getUserId(), shopId, addressId, remark));
+    }
+
+    @Operation(summary = "确认支付")
+    @PutMapping("/order/{id}/pay")
+    public Result<Void> payOrder(@PathVariable Long id) {
+        orderService.payOrder(id, UserContext.getUserId());
+        return Result.success();
     }
 
     @Operation(summary = "我的订单")

@@ -79,9 +79,8 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         VoucherOrder order = new VoucherOrder();
         order.setUserId(userId);
         order.setVoucherId(voucherId);
-        order.setStatus(1); // 已支付
+        order.setStatus(0); // 待支付
         order.setCreateTime(LocalDateTime.now());
-        order.setPayTime(LocalDateTime.now());
         voucherOrderMapper.insert(order);
         return order;
     }
@@ -140,9 +139,17 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
                 throw new BusinessException("已售罄");
             }
 
-            // 6. 乐观 SQL 更新 DB 库存
-            latest.setStock(latest.getStock() - 1);
-            seckillVoucherMapper.updateById(latest);
+            // 6. 条件 SQL 原子更新 DB 库存（防负数兜底）
+            com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<SeckillVoucher> uw =
+                    new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<SeckillVoucher>()
+                    .eq(SeckillVoucher::getVoucherId, voucherId)
+                    .gt(SeckillVoucher::getStock, 0)
+                    .setSql("stock = stock - 1");
+            int rows = seckillVoucherMapper.update(uw);
+            if (rows == 0) {
+                redisTemplate.delete(orderKey);
+                throw new BusinessException("已售罄");
+            }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -158,13 +165,87 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         order.setId(nextOrderId());
         order.setUserId(userId);
         order.setVoucherId(voucherId);
-        order.setStatus(1);
+        order.setStatus(0); // 待支付
         order.setCreateTime(LocalDateTime.now());
-        order.setPayTime(LocalDateTime.now());
         rabbitTemplate.convertAndSend(RabbitMQConfig.SECKILL_EXCHANGE,
                 RabbitMQConfig.SECKILL_ROUTING_KEY, order);
 
         return order.getId();
+    }
+
+    // ==================== 券支付 / 退款 / 核销 ====================
+
+    @Override
+    @Transactional
+    public void payVoucherOrder(Long orderId, Long userId) {
+        VoucherOrder order = voucherOrderMapper.selectById(orderId);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        if (!order.getUserId().equals(userId)) {
+            throw new BusinessException("订单不属于当前用户");
+        }
+        if (order.getStatus() != 0) {
+            throw new BusinessException("订单状态异常，无法支付");
+        }
+        order.setStatus(1);
+        order.setPayTime(LocalDateTime.now());
+        voucherOrderMapper.updateById(order);
+    }
+
+    @Override
+    @Transactional
+    public void refundVoucherOrder(Long orderId, Long userId) {
+        VoucherOrder order = voucherOrderMapper.selectById(orderId);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        if (!order.getUserId().equals(userId)) {
+            throw new BusinessException("订单不属于当前用户");
+        }
+        if (order.getStatus() != 1) {
+            throw new BusinessException("订单状态异常，无法退款");
+        }
+        order.setStatus(2); // 已退款
+        voucherOrderMapper.updateById(order);
+
+        // 恢复库存
+        Long voucherId = order.getVoucherId();
+        Voucher voucher = getById(voucherId);
+        if (voucher != null && voucher.getType() != null && voucher.getType() == 1) {
+            // 秒杀券：恢复 tb_seckill_voucher.stock
+            SeckillVoucher sv = seckillVoucherMapper.selectById(voucherId);
+            if (sv != null) {
+                sv.setStock(sv.getStock() + 1);
+                seckillVoucherMapper.updateById(sv);
+                // 同步 Redis 库存
+                String stockKey = RedisConstants.SECKILL_STOCK_KEY + voucherId;
+                redisTemplate.opsForValue().set(stockKey, String.valueOf(sv.getStock()));
+            }
+        } else if (voucher != null && voucher.getStock() != null) {
+            // 普通券：恢复 tb_voucher.stock
+            lambdaUpdate().eq(Voucher::getId, voucherId)
+                    .setSql("stock = stock + 1").update();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void verifyVoucherOrder(Long orderId, Long shopId) {
+        VoucherOrder order = voucherOrderMapper.selectById(orderId);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        // 校验券归属当前商家店铺
+        Voucher voucher = getById(order.getVoucherId());
+        if (voucher == null || !voucher.getShopId().equals(shopId)) {
+            throw new BusinessException("该券不属于您的店铺");
+        }
+        if (order.getStatus() != 1) {
+            throw new BusinessException("订单状态异常，无法核销");
+        }
+        order.setStatus(3); // 已核销
+        voucherOrderMapper.updateById(order);
     }
 
     // ==================== 商家管理 ====================
@@ -185,7 +266,7 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         // 判断是否创建秒杀券
         if (dto.getBeginTime() != null) {
             voucher.setStock(null); // 秒杀券库存走 tb_seckill_voucher
-            voucher.setType(0); // 先以普通券创建
+            voucher.setType(1); // 直接标记为秒杀券，避免普通券窗口期
             save(voucher);
             convertToSeckill(voucher.getId(), dto);
         } else {
@@ -208,20 +289,20 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         voucher.setPayValue(dto.getPayValue() != null ? dto.getPayValue() : voucher.getPayValue());
         updateById(voucher);
 
-        // 创建秒杀券记录
+        // 创建/更新秒杀券记录
         SeckillVoucher seckill = seckillVoucherMapper.selectById(voucherId);
-        if (seckill == null) {
+        boolean isNew = (seckill == null);
+        if (isNew) {
             seckill = new SeckillVoucher();
             seckill.setVoucherId(voucherId);
         }
         seckill.setStock(dto.getStock());
         seckill.setBeginTime(dto.getBeginTime());
         seckill.setEndTime(dto.getEndTime());
-        SeckillVoucher exist = seckillVoucherMapper.selectById(voucherId);
-        if (exist != null) {
-            seckillVoucherMapper.updateById(seckill);
-        } else {
+        if (isNew) {
             seckillVoucherMapper.insert(seckill);
+        } else {
+            seckillVoucherMapper.updateById(seckill);
         }
 
         // 秒杀库存预热到 Redis

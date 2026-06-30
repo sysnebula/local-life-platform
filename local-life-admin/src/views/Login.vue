@@ -29,7 +29,7 @@
         <el-divider content-position="left">🏪 店铺信息</el-divider>
         <el-row :gutter="12">
           <el-col :span="16"><el-form-item label="店铺名称"><el-input v-model="regForm.shopName" placeholder="如：老王火锅" /></el-form-item></el-col>
-          <el-col :span="8"><el-form-item label="类型"><el-select v-model="regForm.typeId" placeholder="选择"><el-option label="火锅" :value="1" /><el-option label="快餐" :value="2" /><el-option label="饮品" :value="3" /><el-option label="川菜" :value="4" /><el-option label="日料" :value="5" /><el-option label="烧烤" :value="6" /></el-select></el-form-item></el-col>
+          <el-col :span="8"><el-form-item label="类型"><el-select v-model="regForm.typeId" placeholder="选择"><el-option v-for="t in shopTypes" :key="t.id" :label="t.name" :value="t.id" /></el-select></el-form-item></el-col>
         </el-row>
         <el-form-item label="地址"><el-input v-model="regForm.address" placeholder="详细地址" /></el-form-item>
         <el-form-item label="区域"><el-input v-model="regForm.area" placeholder="如：朝阳区" /></el-form-item>
@@ -45,17 +45,23 @@
 </template>
 
 <script setup>
-import {reactive, ref} from 'vue'
+import {reactive, ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import {Lock, User} from '@element-plus/icons-vue'
-import {loginAPI, registerAPI} from '../api'
+import {loginAPI, registerAPI, getShopTypesAPI} from '../api'
 import {saveShopId} from '../store'
 
 const router = useRouter()
 const formRef = ref(null)
 const loading = ref(false)
 const form = reactive({username: '', password: ''})
+
+// 加载店铺类型
+const shopTypes = ref([])
+onMounted(async () => {
+  try { const res = await getShopTypesAPI(); shopTypes.value = res.data || [] } catch (e) {}
+})
 
 // 注册
 const showRegister = ref(false)

@@ -118,7 +118,7 @@ const onDishChange = (idx) => {
 const fetch = async () => {
   loading.value = true
   try {
-    const res = await getSetmealPageAPI({shopId: shopStore.shopId, page: page.value, size: 10});
+    const res = await getSetmealPageAPI({shopId: shopStore.shopId, page: page.value, size: 10, name: searchName.value});
     tableData.value = res.data.records;
     total.value = res.data.total
   } catch (e) {

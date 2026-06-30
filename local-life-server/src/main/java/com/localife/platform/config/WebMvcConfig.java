@@ -44,9 +44,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
                         "/api/customer/user/login",
+                        "/api/customer/user/wx-login",
+                        "/api/customer/shop/types",
                         "/api/merchant/login",
-                        "/api/merchant/register",
-                        "/api/common/upload"
+                        "/api/merchant/register"
                 );
 
         // 商家端角色校验
@@ -58,7 +59,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(customerInterceptor)
                 .addPathPatterns("/api/customer/**")
                 .excludePathPatterns(
-                        "/api/customer/user/login"
+                        "/api/customer/user/login",
+                        "/api/customer/user/wx-login",
+                        "/api/customer/shop/types"
                 );
     }
 }

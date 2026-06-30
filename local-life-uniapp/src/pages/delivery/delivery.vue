@@ -1,22 +1,32 @@
 <script setup>
 import { ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onLoad } from '@dcloudio/uni-app'
 import api from '../../utils/api.js'
 
 const shops = ref([])
+const keyword = ref('')
 
-onShow(() => loadShops())
+onLoad((options) => {
+  keyword.value = options?.keyword || ''
+  loadShops()
+})
 
 const loadShops = async () => {
   try {
-    const res = await api.getShopListAPI({ page: 1, size: 50 })
+    let res
+    if (keyword.value) {
+      res = await api.searchShopsAPI({ keyword: keyword.value, page: 1, size: 50 })
+    } else {
+      res = await api.getShopListAPI({ page: 1, size: 50 })
+    }
     shops.value = (res.data?.records || []).map(s => ({
-      id: s.id, icon: '🍲', name: s.name, area: s.area || '',
+      id: s.id, icon: s.image || '🍲', name: s.name, area: s.area || '',
       score: s.score || '-',
       monthSold: (s.sold || 0) > 1000 ? Math.floor(s.sold / 1000) + 'k' : (s.sold || '-'),
       minOrder: '¥' + ((s.minOrder || 0) / 100).toFixed(0),
       deliveryFee: '¥' + ((s.deliveryFee || 0) / 100).toFixed(0),
-      time: '30分钟'
+      time: '约' + (s.deliveryTime || 30) + '分钟',
+      image: s.image || ''
     }))
   } catch (e) {}
 }
@@ -27,7 +37,10 @@ const goShop = (id) => uni.navigateTo({ url: '/pages/shop-detail/shop-detail?id=
 <template>
   <view class="page">
     <view class="shop-d" v-for="s in shops" :key="s.id" @click="goShop(s.id)">
-      <view class="sd-img"><text style="font-size:36px">{{ s.icon }}</text></view>
+      <view class="sd-img">
+        <image v-if="s.icon && s.icon.startsWith('http')" :src="s.icon" mode="aspectFill" style="width:64px;height:64px;border-radius:10px" />
+        <text v-else style="font-size:36px">{{ s.icon }}</text>
+      </view>
       <view class="sd-info">
         <view class="sd-nr"><text class="sd-name">{{ s.name }}</text></view>
         <view class="sd-meta"><text class="sd-score">⭐{{ s.score }}分</text><text class="sd-sold">月售{{ s.monthSold }}+</text></view>

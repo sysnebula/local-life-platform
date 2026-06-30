@@ -3,6 +3,7 @@ package com.localife.platform.module.user.controller;
 import com.localife.platform.common.context.UserContext;
 import com.localife.platform.common.result.Result;
 import com.localife.platform.module.user.dto.UserLoginDTO;
+import com.localife.platform.module.user.dto.WxLoginDTO;
 import com.localife.platform.module.user.service.UserService;
 import com.localife.platform.module.user.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,12 @@ public class CustomerUserController {
     @PostMapping("/login")
     public Result<UserVO> login(@Valid @RequestBody UserLoginDTO dto) {
         return Result.success(userService.loginByPhone(dto));
+    }
+
+    @Operation(summary = "微信一键登录")
+    @PostMapping("/wx-login")
+    public Result<UserVO> wxLogin(@Valid @RequestBody WxLoginDTO dto) {
+        return Result.success(userService.loginByWx(dto));
     }
 
     @Operation(summary = "获取当前用户信息")

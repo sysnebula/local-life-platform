@@ -34,6 +34,7 @@ export const getMeAPI = () => http.get('/merchant/me')
 // ===== 店铺 =====
 export const getMyShopAPI = () => http.get('/merchant/shop/my')
 export const updateShopAPI = (data) => http.put('/merchant/shop', data)
+export const getShopTypesAPI = () => http.get('/customer/shop/types')
 
 // ===== 通用 =====
 export const uploadAPI = (file) => {
@@ -69,6 +70,7 @@ export const updateVoucherAPI = (id, data) => http.put(`/merchant/voucher/${id}`
 export const deleteVoucherAPI = (id) => http.delete(`/merchant/voucher/${id}`)
 export const convertSeckillAPI = (id, data) => http.post(`/merchant/voucher/${id}/seckill`, data)
 export const getVoucherOrdersAPI = (params) => http.get('/merchant/voucher/orders', { params })
+export const verifyVoucherOrderAPI = (id) => http.put(`/merchant/voucher/order/${id}/verify`)
 
 // ===== 订单 =====
 export const getOrderPageAPI = (params) => http.get('/merchant/takeout/order/page', {params})

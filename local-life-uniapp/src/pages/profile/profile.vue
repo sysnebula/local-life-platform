@@ -10,6 +10,8 @@ const code = ref('')
 const codeSending = ref(false)
 const codeBtnText = ref('获取验证码')
 const logging = ref(false)
+const wxLogging = ref(false)
+const stats = ref({ notes: '-', vouchers: '-', takeout: '-' })
 const showEditForm = ref(false)
 const editNick = ref('')
 const editIcon = ref('')
@@ -17,8 +19,21 @@ let codeTimer = null
 
 onShow(() => {
   const token = uni.getStorageSync('token')
-  if (token) fetchUser()
+  if (token) { fetchUser(); fetchStats() }
 })
+
+const fetchStats = async () => {
+  try {
+    const [notesRes, voucherRes, takeoutRes] = await Promise.all([
+      api.getMyNotesAPI(),
+      api.getVoucherOrdersAPI({ page: 1, size: 1 }),
+      api.getTakeoutOrdersAPI({ page: 1, size: 1 })
+    ])
+    stats.value.notes = notesRes.data?.total || 0
+    stats.value.vouchers = voucherRes.data?.total || 0
+    stats.value.takeout = takeoutRes.data?.total || 0
+  } catch (e) {}
+}
 
 const sendCode = () => {
   if (!phone.value || phone.value.length < 11) {
@@ -48,6 +63,28 @@ const doLogin = async () => {
   } catch (e) { logging.value = false }
 }
 
+const doWxLogin = () => {
+  wxLogging.value = true
+  uni.login({
+    provider: 'weixin',
+    success: async (loginRes) => {
+      try {
+        const res = await api.wxLoginAPI({ code: loginRes.code })
+        uni.setStorageSync('token', res.data.token)
+        isLogin.value = true
+        user.value = res.data
+        uni.showToast({ title: '微信登录成功', icon: 'success' })
+      } catch (e) {
+        uni.showToast({ title: '微信登录失败', icon: 'none' })
+      }
+    },
+    fail: () => {
+      uni.showToast({ title: '获取微信授权失败', icon: 'none' })
+    },
+    complete: () => { wxLogging.value = false }
+  })
+}
+
 const fetchUser = async () => {
   try {
     const res = await api.getMeAPI()
@@ -75,6 +112,7 @@ const logout = () => {
 
 const goOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
 const goExplore = () => uni.navigateTo({ url: '/pages/explore/explore' })
+const goAddress = () => uni.navigateTo({ url: '/pages/address/address' })
 
 onUnload(() => { if (codeTimer) clearInterval(codeTimer) })
 </script>
@@ -88,15 +126,16 @@ onUnload(() => { if (codeTimer) clearInterval(codeTimer) })
         <text class="nickname">{{ user.nickName || user.name || '用户' }}<text class="edit-link" @click="showEdit"> ✏️</text></text>
         <text class="uid" v-if="user.phone">{{ user.phone }}</text>
         <view class="stats">
-          <view class="stat"><text class="num">-</text><text class="label">笔记</text></view>
-          <view class="stat"><text class="num">-</text><text class="label">团购券</text></view>
-          <view class="stat"><text class="num">-</text><text class="label">外卖</text></view>
+          <view class="stat"><text class="num">{{ stats.notes }}</text><text class="label">笔记</text></view>
+          <view class="stat"><text class="num">{{ stats.vouchers }}</text><text class="label">团购券</text></view>
+          <view class="stat"><text class="num">{{ stats.takeout }}</text><text class="label">外卖</text></view>
         </view>
       </view>
       <view class="menu">
         <view class="menu-item" @click="goOrders"><text class="icon">📋</text><text>我的订单</text><text class="arrow">›</text></view>
         <view class="menu-item" @click="goOrders"><text class="icon">🎫</text><text>我的团购券</text><text class="arrow">›</text></view>
         <view class="menu-item" @click="goExplore"><text class="icon">📝</text><text>我的探店笔记</text><text class="arrow">›</text></view>
+        <view class="menu-item" @click="goAddress"><text class="icon">📍</text><text>地址管理</text><text class="arrow">›</text></view>
       </view>
       <view class="logout-wrap"><button class="logout-btn" @click="logout">退出登录</button></view>
     </block>
@@ -106,6 +145,8 @@ onUnload(() => { if (codeTimer) clearInterval(codeTimer) })
         <view class="login-logo">🏪</view>
         <text class="login-title">本地生活</text>
         <text class="login-sub">登录后享受更多优惠</text>
+        <button class="wx-login-btn" @click="doWxLogin" :loading="wxLogging">🟢 微信一键登录</button>
+        <view class="login-divider"><text class="divider-text">或使用手机号</text></view>
         <view class="login-form">
           <input class="login-input" type="number" maxlength="11" placeholder="请输入手机号" v-model="phone" />
           <view class="code-row">
@@ -146,7 +187,11 @@ onUnload(() => { if (codeTimer) clearInterval(codeTimer) })
 .logout-btn{width:100%;padding:12px;border-radius:24px;background:#F5F5F5;border:none;color:#999;font-size:14px}
 .login-card{background:#fff;margin:48px 20px 0;padding:32px 24px;border-radius:12px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.04)}
 .login-logo{font-size:48px;margin-bottom:8px}
-.login-title{display:block;font-size:20px;font-weight:700;color:#222}.login-sub{display:block;font-size:13px;color:#bbb;margin-top:4px;margin-bottom:24px}
+.login-title{display:block;font-size:20px;font-weight:700;color:#222}.login-sub{display:block;font-size:13px;color:#bbb;margin-top:4px;margin-bottom:16px}
+.wx-login-btn{width:100%;background:#07C160;color:#fff;border:none;border-radius:24px;padding:12px;font-size:15px;font-weight:600}
+.login-divider{display:flex;align-items:center;margin:16px 0 8px}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:#eee}
+.divider-text{font-size:12px;color:#bbb;margin:0 12px}
 .login-form{text-align:left}
 .login-input{width:100%;background:#F5F6F8;border:none;border-radius:8px;padding:12px;font-size:14px;margin-bottom:12px;outline:none}
 .code-row{display:flex;gap:8px}.code{flex:1}

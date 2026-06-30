@@ -23,6 +23,11 @@ public class User {
     private String phone;
 
     /**
+     * 微信 openid（微信一键登录）
+     */
+    private String openid;
+
+    /**
      * 用户名（商家登录凭证）
      */
     private String username;

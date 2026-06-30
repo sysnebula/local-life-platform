@@ -40,6 +40,20 @@ public class CustomerVoucherController {
         return Result.success(orderId);
     }
 
+    @Operation(summary = "确认支付券订单")
+    @PutMapping("/voucher/order/{id}/pay")
+    public Result<Void> payOrder(@PathVariable Long id) {
+        voucherService.payVoucherOrder(id, UserContext.getUserId());
+        return Result.success();
+    }
+
+    @Operation(summary = "申请退款")
+    @PutMapping("/voucher/order/{id}/refund")
+    public Result<Void> refund(@PathVariable Long id) {
+        voucherService.refundVoucherOrder(id, UserContext.getUserId());
+        return Result.success();
+    }
+
     @Operation(summary = "我的券订单")
     @GetMapping("/voucher/orders")
     public Result<Page<VoucherOrder>> myOrders(

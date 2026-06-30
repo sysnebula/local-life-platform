@@ -66,6 +66,22 @@ const reorder = async (items) => {
     uni.showToast({ title: '已加入购物车', icon: 'success' })
   } catch (e) { uni.showToast({ title: '添加失败', icon: 'none' }) }
 }
+
+const payVoucher = async (id) => {
+  try { await api.payVoucherOrderAPI(id); uni.showToast({ title: '支付成功', icon: 'success' }); loadOrders() } catch (e) {}
+}
+
+const refundVoucher = (id) => {
+  uni.showModal({ title: '确认退款', content: '退款后券库存将恢复', success: async (res) => {
+    if (res.confirm) {
+      try { await api.refundVoucherOrderAPI(id); uni.showToast({ title: '已退款', icon: 'success' }); loadOrders() } catch (e) {}
+    }
+  }})
+}
+
+const payTakeout = async (id) => {
+  try { await api.payTakeoutOrderAPI(id); uni.showToast({ title: '支付成功', icon: 'success' }); loadOrders() } catch (e) {}
+}
 </script>
 
 <template>
@@ -87,6 +103,9 @@ const reorder = async (items) => {
       </view>
       <view v-else class="o-total"><text>实付：</text><text class="total-price">¥{{ item.amount }}</text></view>
       <view class="o-actions">
+        <button v-if="item.type==='voucher' && item.status===0" class="btn primary" @click="payVoucher(item.id)">去支付</button>
+        <button v-if="item.type==='voucher' && item.status===1" class="btn danger" @click="refundVoucher(item.id)">申请退款</button>
+        <button v-if="item.type==='takeout' && item.paid===0 && item.status===0" class="btn primary" @click="payTakeout(item.id)">去支付</button>
         <button v-if="item.status <= 1 && item.type === 'takeout'" class="btn danger" @click="cancel(item.id)">取消</button>
         <button v-if="item.status <= 1 && item.type === 'takeout'" class="btn primary" @click="remind(item.id)">催单</button>
         <button v-if="item.status === 3" class="btn" @click="reorder(item.items)">再来一单</button>

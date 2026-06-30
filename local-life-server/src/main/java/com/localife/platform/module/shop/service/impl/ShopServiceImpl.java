@@ -104,6 +104,17 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
         return page(new Page<>(page, size), wrapper);
     }
 
+    // ==================== 搜索 ====================
+
+    @Override
+    public Page<Shop> search(String keyword, int page, int size) {
+        LambdaQueryWrapper<Shop> wrapper = new LambdaQueryWrapper<Shop>()
+                .like(Shop::getName, keyword)
+                .eq(Shop::getStatus, 1)
+                .orderByDesc(Shop::getSold);
+        return page(new Page<>(page, size), wrapper);
+    }
+
     // ==================== 店铺类型 ====================
 
     @Override

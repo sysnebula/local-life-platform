@@ -36,6 +36,14 @@ public class CustomerShopController {
         return Result.success(shopService.pageByType(typeId, page, size));
     }
 
+    @Operation(summary = "搜索店铺")
+    @GetMapping("/search")
+    public Result<Page<Shop>> search(@RequestParam String keyword,
+                                      @RequestParam(defaultValue = "1") int page,
+                                      @RequestParam(defaultValue = "10") int size) {
+        return Result.success(shopService.search(keyword, page, size));
+    }
+
     @Operation(summary = "获取所有店铺类型")
     @GetMapping("/types")
     public Result<List<ShopType>> types() {

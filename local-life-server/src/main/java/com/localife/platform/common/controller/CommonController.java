@@ -24,9 +24,18 @@ public class CommonController {
 
     @PostMapping("/upload")
     public Result<String> upload(@RequestParam("file") MultipartFile file) throws IOException {
+        // 文件类型校验
         String originalName = file.getOriginalFilename();
-        String ext = originalName != null && originalName.contains(".")
-                ? originalName.substring(originalName.lastIndexOf(".")) : ".png";
+        String ext = "";
+        if (originalName != null && originalName.contains(".")) {
+            ext = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
+        }
+        if (!ext.matches("\\.(jpg|jpeg|png|gif|webp|bmp)$")) {
+            throw new com.localife.platform.common.exception.BusinessException("仅支持图片格式 (jpg/png/gif/webp)");
+        }
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new com.localife.platform.common.exception.BusinessException("文件大小不能超过10MB");
+        }
         String fileName = IdUtil.fastSimpleUUID() + ext;
 
         // 保存到项目根目录下的 uploads/

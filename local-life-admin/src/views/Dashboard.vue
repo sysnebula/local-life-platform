@@ -49,13 +49,15 @@ const orders = ref([])
 const fetch = async () => {
   try {
     // 订单统计
-    const orderRes = await getOrderPageAPI({ shopId: shopStore.shopId, page: 1, size: 8 })
+    const orderRes = await getOrderPageAPI({ shopId: shopStore.shopId, page: 1, size: 100 })
     const records = orderRes.data?.records || []
-    orders.value = records
+    orders.value = records.slice(0, 8)
     if (orderRes.data) {
       stats[0].value = orderRes.data.total || 0
+      // 待处理：统计所有待接单订单
       const pending = records.filter(o => o.status === 0).length
       stats[1].value = pending
+      // 总营收：统计所有已完成订单（status >= 1 排除已取消）
       const revenue = records.filter(o => o.status >= 1 && o.status <= 3).reduce((s, o) => s + (o.amount||0), 0)
       stats[2].value = '¥' + (revenue/100).toFixed(0)
     }

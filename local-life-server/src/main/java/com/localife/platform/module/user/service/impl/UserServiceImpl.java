@@ -13,6 +13,7 @@ import com.localife.platform.common.utils.JwtUtil;
 import com.localife.platform.module.user.dto.MerchantLoginDTO;
 import com.localife.platform.module.user.dto.MerchantRegisterDTO;
 import com.localife.platform.module.user.dto.UserLoginDTO;
+import com.localife.platform.module.user.dto.WxLoginDTO;
 import com.localife.platform.module.user.entity.User;
 import com.localife.platform.module.user.mapper.UserMapper;
 import com.localife.platform.module.user.service.UserService;
@@ -21,6 +22,7 @@ import com.localife.platform.module.shop.entity.Shop;
 import com.localife.platform.module.shop.mapper.ShopMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate redisTemplate;
     private final ShopMapper shopMapper;
+
+    @Value("${wechat.mock-openid:true}")
+    private boolean wechatMockOpenid;
 
     // ==================== 顾客登录 ====================
 
@@ -92,6 +97,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // Redis 未启动时忽略
         }
 
+        return toVO(user, token);
+    }
+
+    // ==================== 微信登录 ====================
+
+    @Override
+    public UserVO loginByWx(WxLoginDTO dto) {
+        String code = dto.getCode();
+        String openid;
+
+        if (wechatMockOpenid) {
+            // 开发环境：用 code 的 hash 模拟唯一 openid
+            openid = "mock_openid_" + Math.abs(code.hashCode() % 100000);
+            log.info("开发环境 mock openid: code={} → openid={}", code, openid);
+        } else {
+            // 生产环境：调微信 code2Session 接口换取 openid
+            openid = fetchOpenidFromWx(code);
+        }
+
+        // 用 openid 查用户，不存在则自动注册
+        User user = lambdaQuery()
+                .eq(User::getOpenid, openid)
+                .eq(User::getUserType, UserTypeEnum.CUSTOMER.getCode()).one();
+        if (user == null) {
+            user = new User();
+            user.setOpenid(openid);
+            user.setNickName("微信用户" + RandomUtil.randomNumbers(6));
+            user.setUserType(UserTypeEnum.CUSTOMER.getCode());
+            user.setStatus(1);
+            user.setCreateTime(LocalDateTime.now());
+            save(user);
+            log.info("微信新用户注册: openid={}", openid);
+        }
+
+        if (user.getStatus() == 0) {
+            throw new BusinessException("账号已被禁用");
+        }
+
+        String token = generateToken(user);
         return toVO(user, token);
     }
 
@@ -232,6 +276,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .userType(user.getUserType())
                 .token(token)
                 .build();
+    }
+
+    /**
+     * 调用微信 code2Session 接口，用 code 换取 openid。
+     * 文档: https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-login/code2Session.html
+     */
+    private String fetchOpenidFromWx(String code) {
+        String appid = "wx62265c49944608a9";
+        String secret = ""; // TODO: 填入你的小程序 AppSecret
+        String url = String.format(
+                "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
+                appid, secret, code);
+        String resp = cn.hutool.http.HttpUtil.get(url);
+        cn.hutool.json.JSONObject json = cn.hutool.json.JSONUtil.parseObj(resp);
+        if (json.containsKey("errcode") && json.getInt("errcode") != 0) {
+            throw new BusinessException("微信登录失败: " + json.getStr("errmsg"));
+        }
+        return json.getStr("openid");
     }
 
     /**

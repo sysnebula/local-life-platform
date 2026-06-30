@@ -38,6 +38,18 @@
       </el-row>
       <el-row :gutter="16">
         <el-col :span="8">
+          <el-form-item label="配送时间(分钟)">
+            <el-input-number v-model="form.deliveryTime" :min="10" :max="120"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="店铺头像URL">
+            <el-input v-model="form.image" placeholder="图片URL"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="16">
+        <el-col :span="8">
           <el-form-item label="状态">
             <el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="营业"
                        inactive-text="休息"/>
@@ -72,6 +84,8 @@ const form = reactive({
   openHours: '',
   deliveryFee: 0,
   minOrder: 0,
+  deliveryTime: 30,
+  image: '',
   status: 1,
   address: '',
   description: ''

@@ -28,6 +28,8 @@ public class Shop {
     private String description;
     private Integer deliveryFee;
     private Integer minOrder;
+    private String image;       // 店铺头像
+    private Integer deliveryTime; // 预计配送时间(分钟)
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

@@ -5,6 +5,12 @@ import api from '../../utils/api.js'
 
 const seckills = ref([])
 const notes = ref([])
+const searchText = ref('')
+const city = ref('北京')
+const showCityPicker = ref(false)
+const cities = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '南京']
+
+const switchCity = (c) => { city.value = c; showCityPicker.value = false; uni.setStorageSync('city', c) }
 
 const loadSeckills = async () => {
   if (!uni.getStorageSync('token')) return
@@ -32,14 +38,18 @@ const loadNotes = async () => {
       id: n.id,
       avatar: (n.userName || '用')[0],
       userName: n.userName || '用户',
-      shopName: '',
+      shopName: n.shopName || '',
       time: (n.createTime || '').substring(0, 10),
       title: n.title, content: n.content
     }))
   } catch (e) {}
 }
 
-onShow(() => { loadSeckills(); loadNotes() })
+onShow(() => {
+  loadSeckills(); loadNotes()
+  const saved = uni.getStorageSync('city')
+  if (saved) city.value = saved
+})
 
 const goDelivery = () => uni.navigateTo({ url: '/pages/delivery/delivery' })
 const goDinein = () => uni.navigateTo({ url: '/pages/dinein/dinein' })
@@ -56,14 +66,30 @@ const goWriteNote = () => {
 }
 const goNote = (id) => uni.navigateTo({ url: '/pages/explore/explore?id=' + id })
 const goShop = (id) => uni.navigateTo({ url: '/pages/shop-detail/shop-detail?id=' + id })
+
+const doSearch = () => {
+  const kw = searchText.value.trim()
+  if (!kw) { uni.navigateTo({ url: '/pages/delivery/delivery' }); return }
+  uni.navigateTo({ url: '/pages/delivery/delivery?keyword=' + encodeURIComponent(kw) })
+}
 </script>
 
 <template>
   <view class="page">
     <view class="top-bar">
-      <text class="top-city">📍 北京市</text>
+      <text class="top-city" @click="showCityPicker=!showCityPicker">📍 {{ city }}</text>
       <view class="top-search">
-        <text class="icon">🔍</text><input placeholder="搜索店铺、菜品、团购套餐..." />
+        <text class="icon" @click="doSearch">🔍</text><input v-model="searchText" placeholder="搜索店铺..." @confirm="doSearch" />
+      </view>
+    </view>
+
+    <!-- 城市选择 -->
+    <view v-if="showCityPicker" class="city-mask" @click="showCityPicker=false">
+      <view class="city-panel" @click.stop>
+        <text class="cp-title">选择城市</text>
+        <view class="cp-list">
+          <text v-for="c in cities" :key="c" class="cp-item" :class="{ active: c === city }" @click="switchCity(c)">{{ c }}</text>
+        </view>
       </view>
     </view>
 
@@ -145,4 +171,10 @@ const goShop = (id) => uni.navigateTo({ url: '/pages/shop-detail/shop-detail?id=
 .note-user-info{flex:1}.note-user{display:block;font-size:13px;font-weight:500}.note-shop{font-size:11px;color:#E8702A}.note-time{font-size:11px;color:#ccc}
 .note-title{display:block;font-size:15px;font-weight:600;color:#222;margin-bottom:4px}
 .note-content{font-size:13px;color:#666;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.city-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:300;display:flex;align-items:flex-start;justify-content:center}
+.city-panel{background:#fff;margin-top:90px;border-radius:12px;padding:16px;width:280px}
+.cp-title{display:block;font-size:15px;font-weight:600;color:#222;margin-bottom:12px}
+.cp-list{display:flex;flex-wrap:wrap;gap:10px}
+.cp-item{padding:8px 18px;border-radius:16px;font-size:13px;color:#666;background:#F5F6F8}
+.cp-item.active{background:#FF6B35;color:#fff}
 </style>

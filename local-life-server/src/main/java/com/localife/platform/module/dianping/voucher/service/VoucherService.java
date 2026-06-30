@@ -19,6 +19,21 @@ public interface VoucherService extends IService<Voucher> {
     Long seckillVoucher(Long voucherId, Long userId);
 
     /**
+     * 券订单确认支付
+     */
+    void payVoucherOrder(Long orderId, Long userId);
+
+    /**
+     * 顾客申请退款
+     */
+    void refundVoucherOrder(Long orderId, Long userId);
+
+    /**
+     * 商家核销券
+     */
+    void verifyVoucherOrder(Long orderId, Long shopId);
+
+    /**
      * 商家创建优惠券
      */
     void createVoucher(VoucherDTO dto);

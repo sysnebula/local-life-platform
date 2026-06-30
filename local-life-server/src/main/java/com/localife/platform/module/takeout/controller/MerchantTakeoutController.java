@@ -67,9 +67,15 @@ public class MerchantTakeoutController {
     // === 菜品 ===
     @Operation(summary = "菜品分页")
     @GetMapping("/dish/page")
-    public Result<Page<Dish>> dishPage(@RequestParam Long shopId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<Dish> p = dishMapper.selectPage(new Page<>(page, size),
-                new LambdaQueryWrapper<Dish>().eq(Dish::getShopId, shopId).orderByDesc(Dish::getCreateTime));
+    public Result<Page<Dish>> dishPage(@RequestParam Long shopId,
+                                       @RequestParam(required = false) String name,
+                                       @RequestParam(defaultValue = "1") int page,
+                                       @RequestParam(defaultValue = "10") int size) {
+        LambdaQueryWrapper<Dish> wrapper = new LambdaQueryWrapper<Dish>()
+                .eq(Dish::getShopId, shopId)
+                .like(cn.hutool.core.util.StrUtil.isNotBlank(name), Dish::getName, name)
+                .orderByDesc(Dish::getCreateTime);
+        Page<Dish> p = dishMapper.selectPage(new Page<>(page, size), wrapper);
         p.getRecords().forEach(d -> d.setFlavors(dishFlavorMapper.selectList(
                 new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, d.getId()))));
         return Result.success(p);
@@ -117,9 +123,15 @@ public class MerchantTakeoutController {
     // === 套餐 ===
     @Operation(summary = "套餐分页")
     @GetMapping("/setmeal/page")
-    public Result<Page<Setmeal>> setmealPage(@RequestParam Long shopId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<Setmeal> p = setmealMapper.selectPage(new Page<>(page, size),
-                new LambdaQueryWrapper<Setmeal>().eq(Setmeal::getShopId, shopId).orderByDesc(Setmeal::getCreateTime));
+    public Result<Page<Setmeal>> setmealPage(@RequestParam Long shopId,
+                                              @RequestParam(required = false) String name,
+                                              @RequestParam(defaultValue = "1") int page,
+                                              @RequestParam(defaultValue = "10") int size) {
+        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<Setmeal>()
+                .eq(Setmeal::getShopId, shopId)
+                .like(cn.hutool.core.util.StrUtil.isNotBlank(name), Setmeal::getName, name)
+                .orderByDesc(Setmeal::getCreateTime);
+        Page<Setmeal> p = setmealMapper.selectPage(new Page<>(page, size), wrapper);
         p.getRecords().forEach(s -> s.setDishes(setmealDishMapper.selectList(
                 new LambdaQueryWrapper<SetmealDish>().eq(SetmealDish::getSetmealId, s.getId()))));
         return Result.success(p);

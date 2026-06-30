@@ -2,6 +2,7 @@ package com.localife.platform.module.dianping.voucher.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.localife.platform.common.result.Result;
+import com.localife.platform.common.context.UserContext;
 import com.localife.platform.module.dianping.voucher.dto.VoucherDTO;
 import com.localife.platform.module.dianping.voucher.entity.Voucher;
 import com.localife.platform.module.dianping.voucher.entity.VoucherOrder;
@@ -70,6 +71,13 @@ public class MerchantVoucherController {
     @PostMapping("/{id}/seckill")
     public Result<Void> convertToSeckill(@PathVariable Long id, @RequestBody VoucherDTO dto) {
         voucherService.convertToSeckill(id, dto);
+        return Result.success();
+    }
+
+    @Operation(summary = "核销券订单")
+    @PutMapping("/order/{id}/verify")
+    public Result<Void> verifyOrder(@PathVariable Long id) {
+        voucherService.verifyVoucherOrder(id, UserContext.getShopId());
         return Result.success();
     }
 

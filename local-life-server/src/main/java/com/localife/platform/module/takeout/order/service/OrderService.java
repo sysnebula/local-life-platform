@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.localife.platform.common.constant.OrderStatusEnum;
 import com.localife.platform.common.exception.BusinessException;
+import com.localife.platform.module.address.entity.Address;
+import com.localife.platform.module.address.mapper.AddressMapper;
 import com.localife.platform.module.takeout.cart.entity.CartItem;
 import com.localife.platform.module.takeout.cart.service.CartService;
 import com.localife.platform.module.takeout.order.entity.Order;
@@ -16,6 +18,7 @@ import com.localife.platform.module.takeout.order.mapper.OrderMapper;
 import com.localife.platform.module.shop.entity.Shop;
 import com.localife.platform.module.shop.mapper.ShopMapper;
 import com.localife.platform.websocket.OrderNotificationHandler;
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,13 +35,14 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
     private final OrderDetailMapper orderDetailMapper;
     private final CartService cartService;
     private final ShopMapper shopMapper;
+    private final AddressMapper addressMapper;
     private final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
 
     /**
      * 下单
      */
     @Transactional
-    public Order placeOrder(Long userId, Long shopId, String remark) {
+    public Order placeOrder(Long userId, Long shopId, Long addressId, String remark) {
         List<CartItem> cartItems = cartService.list(userId);
         if (cartItems.isEmpty()) {
             throw new BusinessException("购物车为空");
@@ -48,6 +52,15 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
         Shop shop = shopMapper.selectById(shopId);
         if (shop == null) {
             throw new BusinessException("店铺不存在");
+        }
+
+        // 查配送地址
+        Address address = null;
+        if (addressId != null) {
+            address = addressMapper.selectById(addressId);
+        }
+        if (address == null) {
+            throw new BusinessException("请选择收货地址");
         }
 
         // 计算商品总金额
@@ -68,8 +81,11 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
         order.setUserId(userId);
         order.setShopId(shopId);
         order.setStatus(OrderStatusEnum.PENDING.getCode());
+        order.setPaid(0);
         order.setAmount(finalAmount);
         order.setRemark(remark);
+        // 地址快照
+        order.setAddressInfo(JSONUtil.toJsonStr(address));
         order.setCreateTime(LocalDateTime.now());
         save(order);
 
@@ -173,6 +189,19 @@ public class OrderService extends ServiceImpl<OrderMapper, Order> {
     public List<OrderDetail> getDetails(Long orderId) {
         return orderDetailMapper.selectList(
                 new LambdaQueryWrapper<OrderDetail>().eq(OrderDetail::getOrderId, orderId));
+    }
+
+    /**
+     * 确认支付外卖订单
+     */
+    @Transactional
+    public void payOrder(Long orderId, Long userId) {
+        Order order = getById(orderId);
+        if (order == null) throw new BusinessException("订单不存在");
+        if (!order.getUserId().equals(userId)) throw new BusinessException("订单不属于当前用户");
+        if (order.getPaid() != null && order.getPaid() == 1) throw new BusinessException("订单已支付");
+        order.setPaid(1);
+        updateById(order);
     }
 
     private void transition(Long orderId, OrderStatusEnum from, OrderStatusEnum to) {

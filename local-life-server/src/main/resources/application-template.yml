@@ -69,13 +69,19 @@ jwt:
   secret: change-me-to-a-random-string-at-least-256-bits
   ttl-hours: 168  # 7 days
 
-# Aliyun OSS
+# 微信小程序（生产环境请使用环境变量）
+wechat:
+  mock-openid: true
+  appid: ${WECHAT_APPID:}
+  secret: ${WECHAT_SECRET:}
+
+# Aliyun OSS（生产环境请使用环境变量，切勿硬编码真实密钥）
 aliyun:
   oss:
-    endpoint: oss-cn-beijing.aliyuncs.com
-    access-key-id: your-access-key-id
-    access-key-secret: your-access-key-secret
-    bucket-name: local-life-platform
+    endpoint: ${ALIYUN_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+    bucket-name: ${ALIYUN_OSS_BUCKET:local-life-platform}
 
 server:
   port: 8080
