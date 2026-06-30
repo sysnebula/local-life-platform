@@ -13,16 +13,16 @@ INSERT INTO tb_shop_type (id, name, sort) VALUES
 (5, '日料韩餐', 5),
 (6, '烧烤', 6);
 
--- 用户: 1商家 + 1顾客
-INSERT INTO tb_user (id, phone, username, password, nick_name, name, sex, user_type, status, create_time) VALUES
+-- 用户: 1商家(admin/123456) + 1顾客(验证码123456)
+INSERT INTO tb_user (id, phone, username, password, nick_name, name, user_type, status, create_time) VALUES
 (1, '13800001111', 'admin', '$2a$10$riEZs8miW/iSo8GgJZW8EeL5DGn6K2mHZ1fImUXRj9OmAZM9V7NEi', '张店长', '张建国', 1, 1, NOW());
 
 INSERT INTO tb_user (id, phone, nick_name, user_type, status, create_time) VALUES
 (10, '13812345678', '美食猎人', 0, 1, NOW());
 
 -- 店铺: 蜀九香火锅
-INSERT INTO tb_shop (id, name, type_id, merchant_user_id, area, address, avg_price, sold, score, open_hours, phone, description, delivery_fee, min_order, status, create_time) VALUES
-(1, '蜀九香火锅（三里屯店）', 1, 1, '朝阳区', '工体北路甲2号', 12800, 3286, 4.8, '10:00-22:00', '010-88886666', '京城知名重庆火锅，精选食材，正宗川渝味道。', 300, 2000, 1, NOW());
+INSERT INTO tb_shop (id, name, type_id, merchant_user_id, area, address, avg_price, sold, score, open_hours, phone, description, delivery_fee, min_order, delivery_time, status, create_time) VALUES
+(1, '蜀九香火锅（三里屯店）', 1, 1, '朝阳区', '工体北路甲2号', 12800, 3286, 4.8, '10:00-22:00', '010-88886666', '京城知名重庆火锅，精选食材，正宗川渝味道。', 300, 2000, 30, 1, NOW());
 
 -- 菜品分类
 INSERT INTO tb_category (id, shop_id, type, name, sort, status, create_time) VALUES
@@ -62,4 +62,8 @@ INSERT INTO tb_voucher (id, shop_id, title, sub_title, rules, pay_value, actual_
 -- 秒杀券
 INSERT INTO tb_seckill_voucher (voucher_id, stock, begin_time, end_time) VALUES
 (1, 200, '2026-06-01 00:00:00', '2026-12-31 23:59:59');
+
+-- 测试收货地址（顾客 id=10）
+INSERT INTO tb_address (id, user_id, contact_name, phone, province, city, district, detail, is_default, create_time) VALUES
+(1, 10, '李先生', '13812345678', '北京市', '北京市', '朝阳区', '三里屯太古里南区3楼', 1, NOW());
 
