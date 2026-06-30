@@ -73,7 +73,7 @@ const cartMinus = async (dishId) => { try { await api.updateCartAPI('dish_' + di
 const clearCart = async () => { try { await api.clearCartAPI(); showCart.value = false; cartCount.value = 0; cartTotal.value = 0 } catch (e) {} }
 const goCart = () => uni.navigateTo({ url: '/pages/cart/cart' })
 
-// 券购买确认弹窗（用wx原生API避开uni编译问题）
+// 券购买确认弹窗 → 两步：确认购买 → 确认支付
 const buyVoucher = (item) => {
   if (!uni.getStorageSync('token')) { uni.switchTab({ url: '/pages/profile/profile' }); return }
   wx.showModal({
@@ -82,9 +82,20 @@ const buyVoucher = (item) => {
     success(res) {
       if (!res.confirm) return
       const call = item.type === 1 ? api.seckillAPI(item.id) : api.buyVoucherAPI(item.id)
-      call.then(() => {
-        uni.showToast({ title: '购买成功！', icon: 'success' })
-        loadVouchers(shopId.value)
+      call.then((result) => {
+        // 购买成功后立即弹出支付确认
+        const orderId = result.data?.id || result.data
+        wx.showModal({
+          title: '确认支付',
+          content: `实付 ¥${item.payValueYuan}，确认支付？`,
+          success(payRes) {
+            if (!payRes.confirm) { uni.showToast({ title: '可在订单页支付', icon: 'none' }); loadVouchers(shopId.value); return }
+            api.payVoucherOrderAPI(orderId).then(() => {
+              uni.showToast({ title: '支付成功！', icon: 'success' })
+              loadVouchers(shopId.value)
+            }).catch(e => uni.showToast({ title: '支付失败', icon: 'none' }))
+          }
+        })
       }).catch(e => uni.showToast({ title: typeof e === 'string' ? e : '购买失败', icon: 'none' }))
     }
   })

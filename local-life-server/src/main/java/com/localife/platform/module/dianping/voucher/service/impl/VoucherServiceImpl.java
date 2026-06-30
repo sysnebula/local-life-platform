@@ -167,15 +167,14 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
             }
         }
 
-        // 6. RabbitMQ 异步下单
+        // 7. 同步创建订单（确保立即可支付）
         VoucherOrder order = new VoucherOrder();
         order.setId(nextOrderId());
         order.setUserId(userId);
         order.setVoucherId(voucherId);
         order.setStatus(0); // 待支付
         order.setCreateTime(LocalDateTime.now());
-        rabbitTemplate.convertAndSend(RabbitMQConfig.SECKILL_EXCHANGE,
-                RabbitMQConfig.SECKILL_ROUTING_KEY, order);
+        voucherOrderMapper.insert(order);
 
         return order.getId();
     }

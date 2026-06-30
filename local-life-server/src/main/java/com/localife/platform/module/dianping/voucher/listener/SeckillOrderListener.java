@@ -28,12 +28,18 @@ public class SeckillOrderListener {
                           @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
         try {
             log.info("秒杀异步下单: userId={}, voucherId={}", order.getUserId(), order.getVoucherId());
-            voucherOrderMapper.insert(order);
+            // 幂等处理：订单可能已在同步流程中插入
+            if (voucherOrderMapper.selectById(order.getId()) == null) {
+                voucherOrderMapper.insert(order);
+            }
             channel.basicAck(tag, false);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            log.warn("订单已存在，跳过插入: {}", order.getId());
+            try { channel.basicAck(tag, false); } catch (IOException ex) {}
         } catch (Exception e) {
             log.error("秒杀下单失败", e);
             try {
-                channel.basicNack(tag, false, true); // 重新入队
+                channel.basicNack(tag, false, true);
             } catch (IOException ex) {
                 log.error("消息确认失败", ex);
             }
