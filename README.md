@@ -35,7 +35,7 @@
 ```
 mishi/
 ├── pom.xml                          # Parent POM
-├── local-life-server/               # Spring Boot 后端
+├── mishi-server/               # Spring Boot 后端
 │   └── src/main/java/com/mishi/platform/
 │       ├── common/                  # Result、异常、枚举、上下文、JwtUtil
 │       ├── config/                  # MyBatisPlus、Redis、Redisson、MQ、WebSocket、Swagger
@@ -53,8 +53,8 @@ mishi/
 │               ├── setmeal/         # 套餐
 │               ├── cart/            # 购物车（Redis Hash）
 │               └── order/           # 外卖订单（状态流转 + WebSocket）
-├── local-life-admin/                # Vue 3 商家后台
-└── local-life-uniapp/               # UniApp 用户端
+├── mishi-admin/                # Vue 3 商家后台
+└── mishi-uniapp/               # UniApp 用户端
 ```
 
 ## 🚀 快速开始
@@ -67,22 +67,22 @@ mishi/
 
 ```bash
 # 复制配置模板
-cp local-life-server/src/main/resources/application-template.yml \
-   local-life-server/src/main/resources/application-dev.yml
+cp mishi-server/src/main/resources/application-template.yml \
+   mishi-server/src/main/resources/application-dev.yml
 # 编辑 application-dev.yml 填入数据库/Redis/RabbitMQ 信息
 ```
 
 ### 2. 建库建表 + 测试数据
 
 ```bash
-mysql -u root -p < local-life-server/src/main/resources/sql/schema.sql
-mysql -u root -p < local-life-server/src/main/resources/sql/data.sql
+mysql -u root -p < mishi-server/src/main/resources/sql/schema.sql
+mysql -u root -p < mishi-server/src/main/resources/sql/data.sql
 ```
 
 ### 3. 启动后端
 
 ```bash
-cd local-life-server
+cd mishi-server
 mvn spring-boot:run
 ```
 
@@ -90,10 +90,10 @@ mvn spring-boot:run
 
 ```bash
 # 商家后台
-cd local-life-admin && npm install && npm run dev
+cd mishi-admin && npm install && npm run dev
 
 # 用户端小程序（编译后导入微信开发者工具）
-cd local-life-uniapp && npm install && npm run dev:mp-weixin
+cd mishi-uniapp && npm install && npm run dev:mp-weixin
 # → 微信开发者工具导入 dist/dev/mp-weixin 目录
 ```
 

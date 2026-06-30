@@ -12,7 +12,7 @@
     <description>觅食综合服务平台 — 整合到店团购与外卖到家</description>
 
     <modules>
-        <module>local-life-server</module>
+        <module>mishi-server</module>
     </modules>
 
     <parent>
