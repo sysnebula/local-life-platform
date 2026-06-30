@@ -1,6 +1,6 @@
 {
   "pages": [
-    { "path": "pages/index/index", "style": { "navigationBarTitleText": "本地生活" } },
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "觅食" } },
     { "path": "pages/shop-detail/shop-detail", "style": { "navigationBarTitleText": "店铺详情" } },
     { "path": "pages/delivery/delivery", "style": { "navigationBarTitleText": "外卖配送" } },
     { "path": "pages/dinein/dinein", "style": { "navigationBarTitleText": "到店团购" } },
@@ -12,7 +12,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "本地生活",
+    "navigationBarTitleText": "觅食",
     "navigationBarBackgroundColor": "#FF6B35",
     "backgroundColor": "#f5f5f5"
   },

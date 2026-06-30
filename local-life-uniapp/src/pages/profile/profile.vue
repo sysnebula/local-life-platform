@@ -143,7 +143,7 @@ onUnload(() => { if (codeTimer) clearInterval(codeTimer) })
     <block v-else>
       <view class="login-card">
         <view class="login-logo">🏪</view>
-        <text class="login-title">本地生活</text>
+        <text class="login-title">觅食</text>
         <text class="login-sub">登录后享受更多优惠</text>
         <button class="wx-login-btn" @click="doWxLogin" :loading="wxLogging">🟢 微信一键登录</button>
         <view class="login-divider"><text class="divider-text">或使用手机号</text></view>

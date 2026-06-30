@@ -1,15 +1,15 @@
 -- ============================================
---  本地生活平台 — 建表 SQL
+--  觅食平台 — 建表 SQL
 --  执行方式: mysql -u root -p < schema.sql
 --  注意: 会先删除旧库再重建，数据会丢失！
 -- ============================================
 
-DROP DATABASE IF EXISTS local_life;
-CREATE DATABASE local_life
+DROP DATABASE IF EXISTS mishi;
+CREATE DATABASE mishi
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_general_ci;
 
-USE local_life;
+USE mishi;
 
 -- 统一用户表
 CREATE TABLE IF NOT EXISTS tb_user

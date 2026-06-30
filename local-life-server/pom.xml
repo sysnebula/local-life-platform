@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.localife</groupId>
-        <artifactId>local-life-platform</artifactId>
+        <groupId>com.mishi</groupId>
+        <artifactId>mishi</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>local-life-server</artifactId>
+    <artifactId>mishi-server</artifactId>
     <packaging>jar</packaging>
-    <name>local-life-server</name>
+    <name>mishi-server</name>
 
     <dependencies>
         <!-- Spring Boot Starters -->

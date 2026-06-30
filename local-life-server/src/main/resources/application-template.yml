@@ -1,19 +1,19 @@
 # ============================================
-#  本地生活平台 — 配置文件模板
+#  觅食平台 — 配置文件模板
 #  使用方法: 复制此文件为 application-dev.yml 并填写真实配置
 #  注意: application*.yml 已在 .gitignore 中，不会提交到仓库
 # ============================================
 
 spring:
   application:
-    name: local-life-platform
+    name: mishi
   profiles:
     active: dev
 
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/local_life?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/mishi?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: your-mysql-username
     password: your-mysql-password
     druid:
@@ -81,7 +81,7 @@ aliyun:
     endpoint: ${ALIYUN_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
     access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
     access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
-    bucket-name: ${ALIYUN_OSS_BUCKET:local-life-platform}
+    bucket-name: ${ALIYUN_OSS_BUCKET:mishi}
 
 server:
   port: 8080

@@ -1,7 +1,7 @@
 <template>
   <div class="login-bg">
     <div class="login-card">
-      <h1>🏪 本地生活 · 商家后台</h1>
+      <h1>🏪 觅食 · 商家后台</h1>
       <el-form :model="form" :rules="rules" ref="formRef">
         <el-form-item prop="username">
           <el-input v-model="form.username" placeholder="用户名" size="large" :prefix-icon="User"/>

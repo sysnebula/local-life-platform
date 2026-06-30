@@ -3,7 +3,7 @@ import { onLaunch } from '@dcloudio/uni-app'
 
 onLaunch(() => {
   const token = uni.getStorageSync('token')
-  console.log('本地生活 UniApp 启动')
+  console.log('觅食 UniApp 启动')
 })
 </script>
 

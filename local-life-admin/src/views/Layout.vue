@@ -1,7 +1,7 @@
 <template>
   <el-container style="min-height:100vh">
     <el-aside width="220px">
-      <div class="logo">🏪 本地生活·商家</div>
+      <div class="logo">🏪 觅食·商家</div>
       <el-menu :default-active="route.path" router background-color="#1a1a2e" text-color="#ccc"
                active-text-color="#409EFF">
         <el-menu-item index="/dashboard">
