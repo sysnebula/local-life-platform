@@ -107,8 +107,7 @@ CREATE TABLE IF NOT EXISTS tb_voucher_order
     create_time DATETIME,
     pay_time    DATETIME,
     INDEX idx_user (user_id),
-    INDEX idx_voucher (voucher_id),
-    UNIQUE INDEX uk_user_voucher (user_id, voucher_id)
+    INDEX idx_voucher (voucher_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='券订单';
 

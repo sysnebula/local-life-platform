@@ -110,6 +110,13 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         if (Boolean.FALSE.equals(first)) {
             throw new BusinessException("您已抢购过该秒杀券");
         }
+        // 2.5 DB 兜底防重复（Redis 可能被清空）
+        if (voucherOrderMapper.selectCount(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<VoucherOrder>()
+                        .eq(VoucherOrder::getUserId, userId)
+                        .eq(VoucherOrder::getVoucherId, voucherId)) > 0) {
+            throw new BusinessException("您已抢购过该秒杀券");
+        }
 
         // 3. Redisson 分布式锁（库存校验移到锁内防超卖）
         String lockKey = RedisConstants.LOCK_SECKILL_KEY + voucherId;
